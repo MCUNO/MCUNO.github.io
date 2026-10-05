@@ -1,49 +1,4232 @@
-<html>
-    <head>
-        <title>MCUNO官网</title>
-        <style>
-            #blue {
-                background-color: lightblue;
-            }
-            #gold {
-                background-color: gold;
-            }
-            #green {
-                background-color: lightgreen;
-            }
-            #darkgreen {
-                background-color: green;
-            }
-            #brown {
-                background-color: brown;
-            }
-            #grey {
-                background-color: lightgrey;
-            }
-        </style>
-    </head>
-    <body>
-        <div id=green>
-            <h1>MCUNO官网</h1>
-            <h2>Minecraft United News Office: 提供各类Minecraft或IT资讯</h2>
-            <h3>by 鳕鱼MC</h3>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>滚木博弈 · STL PlankRoll</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    color: #444;
+    font-family: Arial, "Microsoft YaHei", sans-serif;
+}
+
+body {
+    overflow: hidden;
+}
+
+button,
+input {
+    font-family: inherit;
+}
+
+.page {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.page.active {
+    display: flex;
+}
+
+
+/* =========================================================
+   HOME
+========================================================= */
+
+#home-page {
+    position: relative;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #fff 0%,
+            #fafafa 65%,
+            #f5f5f5 100%
+        );
+}
+
+.home-container {
+    width: min(520px, 90vw);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    transform: translateY(-20px);
+}
+
+.game-title-cn {
+    margin: 0;
+
+    font-size: clamp(38px, 6vw, 62px);
+    font-weight: 800;
+    letter-spacing: 7px;
+
+    color: #333;
+    text-align: center;
+}
+
+.game-title-en {
+    margin-top: 10px;
+
+    font-size: clamp(15px, 2vw, 20px);
+    letter-spacing: 5px;
+
+    color: #999;
+    text-align: center;
+}
+
+.title-line {
+    width: 80px;
+    height: 2px;
+
+    margin: 28px 0 30px;
+
+    background: #ccc;
+}
+
+.player-inputs {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.player-input {
+    position: relative;
+}
+
+.player-input-label {
+    position: absolute;
+
+    left: 16px;
+    top: -7px;
+
+    padding: 0 6px;
+
+    background: #fff;
+
+    font-size: 11px;
+    color: #999;
+
+    z-index: 2;
+}
+
+.player-input input {
+    width: 100%;
+    height: 48px;
+
+    padding: 0 16px;
+
+    border: 1px solid #d8d8d8;
+    border-radius: 8px;
+
+    outline: none;
+
+    background: #fff;
+
+    font-size: 14px;
+    color: #444;
+
+    transition:
+        border-color .15s ease,
+        box-shadow .15s ease;
+}
+
+.player-input input:focus {
+    border-color: #999;
+
+    box-shadow:
+        0 0 0 3px rgba(0,0,0,.045);
+}
+
+.player-input input::placeholder {
+    color: #bbb;
+}
+
+.start-button {
+    width: 100%;
+    height: 50px;
+
+    margin-top: 20px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #444;
+    color: #fff;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    letter-spacing: 2px;
+
+    cursor: pointer;
+
+    transition:
+        background .15s ease,
+        transform .15s ease,
+        box-shadow .15s ease;
+}
+
+.start-button:hover {
+    background: #333;
+
+    box-shadow:
+        0 7px 20px rgba(0,0,0,.13);
+
+    transform: translateY(-1px);
+}
+
+.start-button:active {
+    transform: scale(.98);
+}
+
+.developers {
+    position: absolute;
+
+    bottom: 22px;
+    left: 0;
+    right: 0;
+
+    text-align: center;
+
+    color: #aaa;
+
+    font-size: 11px;
+    line-height: 21px;
+}
+
+.developers-title {
+    margin-bottom: 2px;
+
+    color: #888;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   GAME
+========================================================= */
+
+#game-page {
+    flex-direction: column;
+    background: #fff;
+}
+
+
+/* =========================================================
+   商店
+========================================================= */
+
+.shop {
+    height: 20vh;
+    min-height: 125px;
+
+    padding: 10px 20px 8px;
+
+    border-bottom: 1px solid #ddd;
+
+    background: #fff;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.shop-header {
+    height: 26px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 5px;
+}
+
+.shop-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #555;
+}
+
+.shop-tip {
+    font-size: 11px;
+    color: #aaa;
+}
+
+.shop-scroll {
+    flex: 1;
+
+    min-height: 0;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    padding: 3px 3px 8px;
+
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+.shop-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.shop-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.shop-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.shop-list {
+    display: flex;
+
+    flex-wrap: nowrap;
+    gap: 8px;
+
+    height: 100%;
+    width: max-content;
+
+    align-items: center;
+}
+
+
+/* =========================================================
+   商店花瓣
+========================================================= */
+
+.shop-card {
+    position: relative;
+
+    width: 62px;
+    height: 68px;
+
+    flex: 0 0 62px;
+
+    border: 1px solid #ddd;
+    border-radius: 9px;
+
+    background: #fafafa;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: grab;
+    user-select: none;
+
+    transition:
+        transform .15s ease,
+        border-color .15s ease,
+        box-shadow .15s ease,
+        background .15s ease;
+}
+
+.shop-card:hover {
+    transform: translateY(-3px);
+
+    border-color: #aaa;
+
+    background: #fff;
+
+    box-shadow:
+        0 5px 16px rgba(0,0,0,.10);
+}
+
+.shop-card:active {
+    cursor: grabbing;
+    transform: scale(.95);
+}
+
+.shop-card.disabled {
+    opacity: .35;
+    filter: grayscale(.7);
+}
+
+.shop-flag {
+    width: 48px;
+    height: 48px;
+
+    object-fit: contain;
+
+    pointer-events: none;
+
+    transition:
+        transform .15s ease;
+}
+
+.shop-card:hover .shop-flag {
+    transform: scale(1.08);
+}
+
+
+/* =========================================================
+   Tooltip
+========================================================= */
+
+.shop-tooltip {
+    position: fixed;
+
+    z-index: 1000;
+
+    width: 190px;
+
+    padding: 10px 12px;
+
+    background: rgba(255,255,255,.98);
+
+    border: 1px solid #ddd;
+    border-radius: 9px;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.13);
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    transform: translateY(5px);
+
+    transition:
+        opacity .12s ease,
+        transform .12s ease;
+}
+
+.shop-tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tooltip-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    margin-bottom: 7px;
+
+    color: #444;
+}
+
+.tooltip-icon {
+    width: 25px;
+    height: 25px;
+
+    object-fit: contain;
+}
+
+.tooltip-row {
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 12px;
+    line-height: 21px;
+
+    color: #777;
+}
+
+.tooltip-row span:last-child {
+    color: #444;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   GAME AREA
+========================================================= */
+
+.game-area {
+    height: 80vh;
+
+    display: flex;
+
+    position: relative;
+
+    background: #fff;
+}
+
+
+/* =========================================================
+   玩家面板
+========================================================= */
+
+.player-panel {
+    position: absolute;
+
+    top: 10px;
+
+    width: 190px;
+
+    z-index: 10;
+
+    padding: 10px 13px;
+
+    background: rgba(255,255,255,.94);
+
+    border: 1px solid #ddd;
+    border-radius: 9px;
+
+    box-shadow:
+        0 3px 12px rgba(0,0,0,.06);
+
+    transition:
+        box-shadow .2s ease;
+}
+
+.player-left {
+    left: 12px;
+}
+
+.player-right {
+    right: 12px;
+}
+
+.player-panel.active {
+    box-shadow:
+        0 0 0 2px rgba(255,210,70,.35);
+}
+
+.player-name {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.player-stats {
+    font-size: 12px;
+    line-height: 19px;
+    color: #777;
+}
+
+.turn-indicator {
+    margin-top: 5px;
+
+    font-size: 11px;
+    color: #aaa;
+}
+
+.phase-label {
+    position: absolute;
+
+    left: 50%;
+    top: 10px;
+
+    transform: translateX(-50%);
+
+    font-size: 12px;
+    color: #999;
+
+    z-index: 10;
+}
+
+
+/* =========================================================
+   BOARD
+========================================================= */
+
+.board-wrapper {
+    flex: 1;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 35px 20px 15px;
+}
+
+.board {
+    width:
+        min(
+            68vh,
+            calc(100vw - 100px)
+        );
+
+    aspect-ratio: 1 / 1;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(12, 1fr);
+
+    grid-template-rows:
+        repeat(12, 1fr);
+
+    border: 1px solid #bbb;
+
+    background: #fff;
+
+    box-shadow:
+        0 5px 25px rgba(0,0,0,.05);
+}
+
+.cell {
+    position: relative;
+
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    transition:
+        background .12s ease,
+        box-shadow .12s ease;
+}
+
+.cell:nth-child(12n) {
+    border-right: none;
+}
+
+.cell:nth-last-child(-n + 12) {
+    border-bottom: none;
+}
+
+.cell.left-side {
+    background:
+        rgba(255,247,210,.18);
+}
+
+.cell.right-side {
+    background:
+        rgba(220,250,225,.18);
+}
+
+.cell.center-line {
+    border-right: 2px solid #bbb;
+}
+
+
+/* =========================================================
+   花瓣
+========================================================= */
+
+.piece {
+    width: 76%;
+    height: 76%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+
+    z-index: 3;
+
+    cursor: pointer;
+
+    border-radius: 10px;
+
+    transition:
+        transform .15s ease,
+        box-shadow .15s ease,
+        opacity .15s ease;
+}
+
+.piece-image {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    pointer-events: none;
+
+    user-select: none;
+}
+
+
+/*
+   双方颜色不再覆盖原 PNG，
+   仅使用轻微背景区分阵营
+*/
+
+.piece.flower {
+    background:
+        rgba(255,245,190,.20);
+}
+
+.piece.leecher {
+    background:
+        rgba(210,245,215,.20);
+}
+
+
+/*
+   基地 / 花朵
+*/
+
+.piece.base {
+    width: 82%;
+    height: 82%;
+
+    border-radius: 50%;
+}
+
+
+/*
+   蜂蜡
+*/
+
+.piece.wall {
+    width: 80%;
+    height: 80%;
+}
+
+
+/*
+   选择
+*/
+
+.piece.selected {
+    box-shadow:
+        0 0 0 3px rgba(255,196,0,.75),
+        0 0 18px rgba(255,196,0,.35);
+
+    animation:
+        selectedPulse 1.1s infinite;
+}
+
+@keyframes selectedPulse {
+
+    0%,100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+
+/* =========================================================
+   操作范围
+========================================================= */
+
+.cell.move-target {
+    background:
+        rgba(110,220,125,.23)
+        !important;
+}
+
+.cell.attack-target {
+    background:
+        rgba(255,105,105,.22)
+        !important;
+}
+
+
+/*
+   鼠标实时判断
+*/
+
+.cell.hover-valid {
+    background:
+        rgba(70,210,100,.48)
+        !important;
+
+    box-shadow:
+        inset 0 0 0 2px
+        rgba(40,170,70,.65);
+}
+
+.cell.hover-invalid {
+    background:
+        rgba(245,80,80,.42)
+        !important;
+
+    box-shadow:
+        inset 0 0 0 2px
+        rgba(210,50,50,.6);
+}
+
+.cell.hover-invalid::after {
+    content: "×";
+
+    position: absolute;
+
+    font-size: 18px;
+
+    color:
+        rgba(150,30,30,.65);
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   战斗日志
+========================================================= */
+
+.battle-log {
+    position: absolute;
+
+    right: 12px;
+    bottom: 12px;
+
+    width: 250px;
+    height: 145px;
+
+    background: rgba(255,255,255,.95);
+
+    border: 1px solid #ddd;
+    border-radius: 9px;
+
+    box-shadow:
+        0 3px 15px rgba(0,0,0,.06);
+
+    display: flex;
+    flex-direction: column;
+
+    z-index: 10;
+}
+
+.log-title {
+    padding: 8px 10px;
+
+    border-bottom:
+        1px solid #eee;
+
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.log-content {
+    flex: 1;
+
+    overflow-y: auto;
+
+    padding: 5px 9px;
+
+    font-size: 11px;
+}
+
+.log-entry {
+    margin-bottom: 4px;
+    color: #888;
+}
+
+.log-entry.flower {
+    color: #b79b20;
+}
+
+.log-entry.leecher {
+    color: #4d9d57;
+}
+
+
+/* =========================================================
+   控制
+========================================================= */
+
+.controls {
+    position: absolute;
+
+    left: 50%;
+    bottom: 12px;
+
+    transform:
+        translateX(-50%);
+
+    display: flex;
+
+    gap: 8px;
+
+    z-index: 20;
+}
+
+.game-button {
+    border: 1px solid #ccc;
+
+    background: #fff;
+    color: #555;
+
+    border-radius: 7px;
+
+    padding: 7px 13px;
+
+    cursor: pointer;
+
+    transition:
+        background .15s,
+        transform .15s,
+        box-shadow .15s;
+}
+
+.game-button:hover {
+    background: #f7f7f7;
+
+    box-shadow:
+        0 3px 10px rgba(0,0,0,.08);
+}
+
+.game-button:active {
+    transform: scale(.95);
+}
+
+
+
+/* =========================================================
+   花瓣血条与受伤反馈
+========================================================= */
+
+.piece-hp-bar {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: -5px;
+    height: 5px;
+    border-radius: 4px;
+    background: rgba(0,0,0,.16);
+    overflow: hidden;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.piece-hp-fill {
+    height: 100%;
+    width: 100%;
+    background: #45b957;
+    transition: width .18s ease, background .18s ease;
+}
+
+.piece-hp-fill.low { background: #e5a52e; }
+.piece-hp-fill.critical { background: #df3f3f; }
+
+.damage-number {
+    position: absolute;
+    left: 50%;
+    top: -8px;
+    z-index: 20;
+    pointer-events: none;
+    color: #e53935;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+    text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff,
+                 1px -1px 0 #fff, -1px 1px 0 #fff;
+    animation: damageNumberFloat .72s ease-out forwards;
+}
+
+@keyframes damageNumberFloat {
+    0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -30px) scale(1.12); }
+}
+
+.hit-shake {
+    animation: hitShake .28s ease;
+}
+
+@keyframes hitShake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(3px); }
+}
+
+.movement-ghost {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .32s cubic-bezier(.2,.8,.2,1);
+}
+
+.movement-ghost img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* =========================================================
+   动画
+========================================================= */
+
+.attack-animation {
+    animation:
+        attackAnim .3s ease;
+}
+
+@keyframes attackAnim {
+
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.18);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.hit-animation {
+    animation:
+        hitAnim .28s ease;
+}
+
+@keyframes hitAnim {
+
+    0%,100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+
+    75% {
+        transform: translateX(-3px);
+    }
+}
+
+.damage-flash {
+    animation:
+        damageFlash .3s ease;
+}
+
+@keyframes damageFlash {
+
+    0%,100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.8);
+    }
+}
+
+.death-animation {
+    animation:
+        deathAnim .42s forwards ease;
+}
+
+@keyframes deathAnim {
+
+    to {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+.game-over {
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(255,255,255,.82);
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    z-index: 100;
+}
+
+.game-over.show {
+    display: flex;
+}
+
+.game-over-box {
+    padding: 30px 45px;
+
+    background: #fff;
+
+    border: 1px solid #ddd;
+    border-radius: 12px;
+
+    box-shadow:
+        0 12px 40px rgba(0,0,0,.15);
+
+    text-align: center;
+}
+
+.game-over-title {
+    font-size: 25px;
+    font-weight: bold;
+
+    margin-bottom: 10px;
+}
+
+.game-over-sub {
+    color: #888;
+    margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   响应式
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .player-panel {
+        width: 145px;
+    }
+
+    .battle-log {
+        width: 200px;
+    }
+
+    .shop {
+        min-height: 120px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HOME
+====================================================== -->
+
+<section
+    id="home-page"
+    class="page active"
+>
+
+    <div class="home-container">
+
+        <h1 class="game-title-cn">
+            滚木博弈
+        </h1>
+
+        <div class="game-title-en">
+            STL PlankRoll
         </div>
-        <p id=grey>=======================================================================================================</p>
-        <div id='gold'>
-            <h2>关于服务器</h2>
-            <a href='Release2.6.7.exe' download='PCL.exe'>PCL下载</a><p></p><p></p><p></p>
-            <a href='info.html'>（一定要看）加服教程</a>
+
+        <div class="title-line"></div>
+
+
+        <div class="player-inputs">
+
+            <div class="player-input">
+
+                <div class="player-input-label">
+                    左侧玩家
+                </div>
+
+                <input
+                    id="left-player-name"
+                    type="text"
+                    maxlength="20"
+                    placeholder="输入左侧玩家名称"
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="player-input">
+
+                <div class="player-input-label">
+                    右侧玩家
+                </div>
+
+                <input
+                    id="right-player-name"
+                    type="text"
+                    maxlength="20"
+                    placeholder="输入右侧玩家名称"
+                    autocomplete="off"
+                >
+
+            </div>
+
         </div>
-        <p id=grey>=======================================================================================================</p>
-        <div id='gold'>
-            <h2>关于paper计划</h2>
-            <a href='Paper MC.html'>进入内测（按o保存，否则无效）</a>
-            <h2>关于物理边界计划</h2>
-            <a href='phy.html'>进入物理引擎（测试中）</a>
+
+
+        <button
+            class="start-button"
+            id="start-game-button"
+        >
+            开始游戏
+        </button>
+
+    </div>
+
+
+    <div class="developers">
+
+        <div class="developers-title">
+            开发者
         </div>
-        <p>=======================================================================================================</p>
-        <h2>公告</h2>
-        <p>1，本服自4月起不再允许成员加入cyt，rwr的服务器</p>
-        <p>2，愚人节时，本服开了一个无续费的玩笑，效果很好</p>
-    </body>
+
+        <div>
+            <strong>Cod32</strong>
+            ：总设计师、开发者、部署者
+        </div>
+
+        <div>
+            <strong>Andrew1326</strong>
+            ：赞助者、名义开发者
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     GAME
+====================================================== -->
+
+<section
+    id="game-page"
+    class="page"
+>
+
+
+    <!-- 商店 -->
+
+    <div class="shop">
+
+        <div class="shop-header">
+
+            <div class="shop-title">
+                花瓣商店
+            </div>
+
+            <div class="shop-tip">
+                悬停查看属性 · 拖动部署
+            </div>
+
+        </div>
+
+
+        <div class="shop-scroll">
+
+            <div
+                class="shop-list"
+                id="shop-list"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Tooltip -->
+
+    <div
+        class="shop-tooltip"
+        id="shop-tooltip"
+    ></div>
+
+
+    <!-- 游戏区域 -->
+
+    <div class="game-area">
+
+
+        <div
+            class="phase-label"
+            id="phase-label"
+        >
+            部署阶段
+        </div>
+
+
+        <!-- 左玩家 -->
+
+        <div
+            class="player-panel player-left"
+            id="left-player-panel"
+        >
+
+            <div
+                class="player-name"
+                id="left-player-display"
+            >
+                Flower
+            </div>
+
+            <div class="player-stats">
+
+                HP：
+                <span id="left-hp">100</span>
+
+                <br>
+
+                Stars：
+                <span id="left-stars">100</span>
+
+                <br>
+
+                RP：
+                <span id="left-rp">10</span>
+
+            </div>
+
+            <div
+                class="turn-indicator"
+                id="left-turn"
+            ></div>
+
+        </div>
+
+
+        <!-- 右玩家 -->
+
+        <div
+            class="player-panel player-right"
+            id="right-player-panel"
+        >
+
+            <div
+                class="player-name"
+                id="right-player-display"
+            >
+                Leecher
+            </div>
+
+            <div class="player-stats">
+
+                HP：
+                <span id="right-hp">100</span>
+
+                <br>
+
+                Stars：
+                <span id="right-stars">100</span>
+
+                <br>
+
+                RP：
+                <span id="right-rp">10</span>
+
+            </div>
+
+            <div
+                class="turn-indicator"
+                id="right-turn"
+            ></div>
+
+        </div>
+
+
+        <!-- 棋盘 -->
+
+        <div class="board-wrapper">
+
+            <div
+                class="board"
+                id="board"
+            ></div>
+
+        </div>
+
+
+        <!-- 战斗日志 -->
+
+        <div class="battle-log">
+
+            <div class="log-title">
+                战斗日志
+            </div>
+
+            <div
+                class="log-content"
+                id="log-content"
+            ></div>
+
+        </div>
+
+
+        <!-- 控制 -->
+
+        <div class="controls">
+
+            <button
+                class="game-button"
+                id="complete-btn"
+            >
+                完成部署
+            </button>
+
+            <button
+                class="game-button"
+                id="end-turn-btn"
+                style="display:none;"
+            >
+                结束回合
+            </button>
+
+            <button
+                class="game-button"
+                id="back-home-btn"
+            >
+                返回主页
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     GAME OVER
+====================================================== -->
+
+<div
+    class="game-over"
+    id="game-over"
+>
+
+    <div class="game-over-box">
+
+        <div
+            class="game-over-title"
+            id="game-over-title"
+        ></div>
+
+        <div class="game-over-sub">
+            战斗结束
+        </div>
+
+        <button
+            class="game-button"
+            id="restart-button"
+        >
+            返回主页
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+/* =========================================================
+   花瓣资料
+========================================================= */
+
+const PIECES = [
+
+    {
+        id: "thorn",
+
+        name: "刺",
+
+        image:
+        "https://static.wikia.nocookie.net/florrio/images/b/b8/%E5%88%BA%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260218085706&path-prefix=zh",
+
+        price: 20,
+
+        damage: 15,
+
+        hp: 60,
+
+        range: 1,
+
+        rp: 2
+
+    },
+
+
+    {
+        id: "missile",
+
+        name: "导弹",
+
+        image:
+        "https://static.wikia.nocookie.net/florrio/images/c/c4/%E6%9C%BA%E6%A2%B0%E5%AF%BC%E5%BC%B9%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260405104304&path-prefix=zh",
+
+        price: 30,
+
+        damage: 12,
+
+        hp: 40,
+
+        range: 4,
+
+        rp: 3
+
+    },
+
+
+    {
+        id: "saw",
+
+        name: "锯片",
+
+        image:
+        "https://static.wikia.nocookie.net/florrio/images/0/07/%E9%94%AF%E7%89%87%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260405103753&path-prefix=zh",
+
+        price: 45,
+
+        damage: 25,
+
+        hp: 90,
+
+        range: 1,
+
+        rp: 3
+
+    },
+
+
+    {
+        id: "corn",
+
+        name: "玉米",
+
+        image:
+        "https://static.wikia.nocookie.net/florrio/images/e/ea/%E7%8E%89%E7%B1%B3%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260301111825&path-prefix=zh",
+
+        price: 50,
+
+        damage: 30,
+
+        hp: 35,
+
+        range: 3,
+
+        rp: 4
+
+    },
+
+
+    {
+        id: "dust",
+
+        name: "灰尘",
+
+        image:
+        "https://static.wikia.nocookie.net/florrio/images/7/74/%E7%81%B0%E5%B0%98%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260423142244&path-prefix=zh",
+
+        price: 40,
+
+        damage: 40,
+
+        hp: 30,
+
+        range: 2,
+
+        rp: 5
+
+    },
+
+
+    {
+        id: "wing",
+
+        name: "翅膀",
+
+        image:
+        "https://static.wikia.nocookie.net/florrio/images/c/c7/%E7%BF%85%E8%86%80%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260218085634&path-prefix=zh",
+
+        price: 35,
+
+        damage: 18,
+
+        hp: 45,
+
+        range: 5,
+
+        rp: 3
+
+    },
+
+
+    {
+        id: "beeswax",
+
+        name: "蜂蜡",
+
+        image:
+        "https://static.wikia.nocookie.net/florrio/images/9/9e/%E8%9C%82%E8%9C%A1%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260405104225&path-prefix=zh",
+
+        price: 55,
+
+        damage: 0,
+
+        hp: 160,
+
+        range: 0,
+
+        rp: 0,
+
+        immobile: true,
+
+        wall: true
+
+    }
+
+];
+
+
+/* =========================================================
+   花朵基地
+========================================================= */
+
+const BASE_IMAGE =
+"https://static.wikia.nocookie.net/florrio/images/0/0e/%E8%8A%B1%E6%9C%B5.png/revision/latest/scale-to-width-down/185?cb=20221113182328&path-prefix=zh";
+
+
+/* =========================================================
+   常量
+========================================================= */
+
+const BOARD_SIZE = 12;
+
+const MAX_RP = 10;
+
+const MOVE_COST = 4;
+
+const MOVE_RANGE = 3;
+
+
+/* =========================================================
+   玩家
+========================================================= */
+
+let playerNames = {
+    1: "Flower",
+    2: "Leecher"
+};
+
+
+/* =========================================================
+   游戏状态
+========================================================= */
+
+let board = [];
+
+let currentPlayer = 1;
+
+let phase = "home";
+
+let selectedPiece = null;
+
+let nextPieceId = 1;
+
+let deploymentFinished = {
+    1: false,
+    2: false
+};
+
+let players = {
+    1: {
+        stars: 100,
+        rp: MAX_RP
+    },
+
+    2: {
+        stars: 100,
+        rp: MAX_RP
+    }
+};
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const homePage =
+    document.getElementById("home-page");
+
+const gamePage =
+    document.getElementById("game-page");
+
+const shopList =
+    document.getElementById("shop-list");
+
+const tooltip =
+    document.getElementById("shop-tooltip");
+
+const boardElement =
+    document.getElementById("board");
+
+
+/* =========================================================
+   开始游戏
+========================================================= */
+
+document
+.getElementById("start-game-button")
+.addEventListener(
+    "click",
+    startGame
+);
+
+
+function startGame() {
+
+    const leftName =
+        document
+        .getElementById("left-player-name")
+        .value
+        .trim();
+
+    const rightName =
+        document
+        .getElementById("right-player-name")
+        .value
+        .trim();
+
+
+    playerNames[1] =
+        leftName || "Flower";
+
+    playerNames[2] =
+        rightName || "Leecher";
+
+
+    createBoard();
+
+
+    /*
+       花朵自动生成
+    */
+
+    createBase(1);
+
+    createBase(2);
+
+
+    players[1] = {
+        stars: 100,
+        rp: MAX_RP
+    };
+
+    players[2] = {
+        stars: 100,
+        rp: MAX_RP
+    };
+
+
+    currentPlayer = 1;
+
+    phase = "deployment";
+
+    selectedPiece = null;
+
+    nextPieceId = 1;
+
+
+    deploymentFinished = {
+        1: false,
+        2: false
+    };
+
+
+    document.getElementById(
+        "left-player-display"
+    ).textContent =
+        playerNames[1];
+
+
+    document.getElementById(
+        "right-player-display"
+    ).textContent =
+        playerNames[2];
+
+
+    homePage.classList.remove("active");
+
+    gamePage.classList.add("active");
+
+
+    createShop();
+
+    render();
+
+
+    addLog(
+        `游戏开始，${playerNames[1]} 先进行部署`,
+        1
+    );
+
+}
+
+
+/* =========================================================
+   创建棋盘
+========================================================= */
+
+function createBoard() {
+
+    board = [];
+
+    for (
+        let y = 0;
+        y < BOARD_SIZE;
+        y++
+    ) {
+
+        board[y] = [];
+
+        for (
+            let x = 0;
+            x < BOARD_SIZE;
+            x++
+        ) {
+
+            board[y][x] = null;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   创建花朵
+========================================================= */
+
+function createBase(player) {
+
+    const x =
+        player === 1
+        ? 0
+        : BOARD_SIZE - 1;
+
+    const y =
+        Math.floor(
+            BOARD_SIZE / 2
+        );
+
+
+    const base = {
+
+        id:
+            "base-" + player,
+
+        type:
+            "base",
+
+        name:
+            "花朵",
+
+        player,
+
+        x,
+        y,
+
+        hp: 100,
+
+        maxHp: 100,
+
+        damage: 0,
+
+        range: 0,
+
+        rp: 0,
+
+        isBase: true,
+
+        immobile: true
+
+    };
+
+
+    board[y][x] = base;
+
+}
+
+
+/* =========================================================
+   商店
+========================================================= */
+
+function createShop() {
+
+    shopList.innerHTML = "";
+
+
+    PIECES.forEach(piece => {
+
+        const card =
+            document.createElement("div");
+
+
+        card.className =
+            "shop-card";
+
+        card.draggable = true;
+
+        card.dataset.pieceId =
+            piece.id;
+
+
+        card.innerHTML = `
+
+            <img
+                class="shop-flag"
+                src="${piece.image}"
+                alt="${piece.name}"
+                draggable="false"
+            >
+
+        `;
+
+
+        /*
+           悬停信息
+        */
+
+        card.addEventListener(
+            "mouseenter",
+            e => {
+
+                showPieceTooltip(
+                    piece,
+                    e
+                );
+
+            }
+        );
+
+
+        card.addEventListener(
+            "mousemove",
+            e => {
+
+                moveTooltip(e);
+
+            }
+        );
+
+
+        card.addEventListener(
+            "mouseleave",
+            hidePieceTooltip
+        );
+
+
+        /*
+           点击购买
+        */
+
+        card.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    phase === "deployment"
+                ) {
+
+                    buyAndPlace(piece);
+
+                }
+                else if (
+                    phase === "battle"
+                ) {
+
+                    buyDuringBattle(piece);
+
+                }
+
+            }
+        );
+
+
+        /*
+           拖动
+        */
+
+        card.addEventListener(
+            "dragstart",
+            e => {
+
+                e.dataTransfer.setData(
+                    "pieceId",
+                    piece.id
+                );
+
+                hidePieceTooltip();
+
+            }
+        );
+
+
+        shopList.appendChild(card);
+
+    });
+
+
+    updateShopDisabled();
+
+}
+
+
+/* =========================================================
+   Tooltip
+========================================================= */
+
+function showPieceTooltip(
+    piece,
+    event
+) {
+
+    tooltip.innerHTML = `
+
+        <div class="tooltip-title">
+
+            <img
+                class="tooltip-icon"
+                src="${piece.image}"
+                alt=""
+            >
+
+            ${piece.name}
+
+        </div>
+
+        <div class="tooltip-row">
+            <span>Stars</span>
+            <span>${piece.price}</span>
+        </div>
+
+        <div class="tooltip-row">
+            <span>伤害</span>
+            <span>${piece.damage}</span>
+        </div>
+
+        <div class="tooltip-row">
+            <span>HP</span>
+            <span>${piece.hp}</span>
+        </div>
+
+        <div class="tooltip-row">
+            <span>攻击距离</span>
+            <span>${piece.range}</span>
+        </div>
+
+        <div class="tooltip-row">
+            <span>RP 消耗</span>
+            <span>${piece.rp}</span>
+        </div>
+
+        ${
+            piece.immobile
+            ? `
+                <div class="tooltip-row">
+                    <span>移动</span>
+                    <span>不可移动</span>
+                </div>
+            `
+            : ""
+        }
+
+        ${
+            piece.wall
+            ? `
+                <div class="tooltip-row">
+                    <span>类型</span>
+                    <span>防御墙</span>
+                </div>
+            `
+            : ""
+        }
+
+    `;
+
+
+    tooltip.classList.add("show");
+
+    moveTooltip(event);
+
+}
+
+
+function moveTooltip(event) {
+
+    const margin = 12;
+
+    let x =
+        event.clientX + 15;
+
+    let y =
+        event.clientY + 15;
+
+
+    const rect =
+        tooltip.getBoundingClientRect();
+
+
+    if (
+        x + rect.width >
+        window.innerWidth - margin
+    ) {
+
+        x =
+            event.clientX -
+            rect.width -
+            15;
+
+    }
+
+
+    if (
+        y + rect.height >
+        window.innerHeight - margin
+    ) {
+
+        y =
+            event.clientY -
+            rect.height -
+            15;
+
+    }
+
+
+    tooltip.style.left =
+        x + "px";
+
+    tooltip.style.top =
+        y + "px";
+
+}
+
+
+function hidePieceTooltip() {
+
+    tooltip.classList.remove("show");
+
+}
+
+
+/* =========================================================
+   商店可购买状态
+========================================================= */
+
+function updateShopDisabled() {
+
+    document
+    .querySelectorAll(".shop-card")
+    .forEach(card => {
+
+        const piece =
+            PIECES.find(
+                p =>
+                    p.id ===
+                    card.dataset.pieceId
+            );
+
+
+        if (
+            players[currentPlayer].stars <
+            piece.price
+        ) {
+
+            card.classList.add("disabled");
+
+        }
+        else {
+
+            card.classList.remove("disabled");
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   距离
+========================================================= */
+
+function distance(a, b) {
+
+    return Math.max(
+        Math.abs(a.x - b.x),
+        Math.abs(a.y - b.y)
+    );
+
+}
+
+
+/* =========================================================
+   判断移动路径是否被阻挡
+========================================================= */
+
+/*
+   使用 supercover line 思路。
+
+   不只检查终点，
+   而是检查从起点到终点之间
+   所有经过的网格。
+
+   起点和终点本身不算阻挡，
+   只有中间格的花瓣会阻挡移动。
+*/
+
+function isPathBlocked(
+    startX,
+    startY,
+    endX,
+    endY
+) {
+    /*
+       稳定的 supercover 网格线算法。
+       横向/纵向单独处理，避免原算法的除以 0 问题。
+       斜向移动检查实际穿过的相邻格。
+    */
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const sx = Math.sign(dx);
+    const sy = Math.sign(dy);
+    const ax = Math.abs(dx);
+    const ay = Math.abs(dy);
+
+    if (ax === 0 && ay === 0) {
+        return false;
+    }
+
+    if (ay === 0) {
+        for (let x = startX + sx; x !== endX; x += sx) {
+            if (board[startY] && board[startY][x]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    if (ax === 0) {
+        for (let y = startY + sy; y !== endY; y += sy) {
+            if (board[y] && board[y][startX]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    let x = startX;
+    let y = startY;
+    let ix = 0;
+    let iy = 0;
+
+    while (ix < ax || iy < ay) {
+        const nextXRatio = (ix + 1) / ax;
+        const nextYRatio = (iy + 1) / ay;
+
+        if (nextXRatio === nextYRatio) {
+            const side1X = x + sx;
+            const side1Y = y;
+            const side2X = x;
+            const side2Y = y + sy;
+
+            if (board[side1Y] && board[side1Y][side1X]) {
+                return true;
+            }
+
+            if (board[side2Y] && board[side2Y][side2X]) {
+                return true;
+            }
+
+            x += sx;
+            y += sy;
+            ix++;
+            iy++;
+        } else if (nextXRatio < nextYRatio) {
+            x += sx;
+            ix++;
+        } else {
+            y += sy;
+            iy++;
+        }
+
+        if (x === endX && y === endY) {
+            break;
+        }
+
+        if (board[y] && board[y][x]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function pathIsBlocked(
+    piece,
+    x,
+    y
+) {
+    return isPathBlocked(
+        piece.x,
+        piece.y,
+        x,
+        y
+    );
+}
+
+/* =========================================================
+   找部署位置
+========================================================= */
+
+function findFreeDeploymentPosition(
+    player
+) {
+
+    const startX =
+        player === 1
+        ? 0
+        : BOARD_SIZE - 1;
+
+
+    const direction =
+        player === 1
+        ? 1
+        : -1;
+
+
+    for (
+        let distanceX = 0;
+        distanceX < 5;
+        distanceX++
+    ) {
+
+        const x =
+            startX +
+            direction *
+            distanceX;
+
+
+        if (
+            x < 0 ||
+            x >= BOARD_SIZE
+        ) {
+
+            continue;
+
+        }
+
+
+        for (
+            let y = 0;
+            y < BOARD_SIZE;
+            y++
+        ) {
+
+            if (
+                !board[y][x]
+            ) {
+
+                return {
+                    x,
+                    y
+                };
+
+            }
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+function findFreeBattleSpawn(
+    player
+) {
+
+    return findFreeDeploymentPosition(
+        player
+    );
+
+}
+
+
+/* =========================================================
+   放置花瓣
+========================================================= */
+
+function placePiece(
+    piece,
+    player,
+    x,
+    y
+) {
+
+    const unit = {
+
+        id:
+            "piece-" +
+            nextPieceId++,
+
+        type:
+            piece.id,
+
+        name:
+            piece.name,
+
+        image:
+            piece.image,
+
+        player,
+
+        x,
+        y,
+
+        hp:
+            piece.hp,
+
+        maxHp:
+            piece.hp,
+
+        damage:
+            piece.damage,
+
+        range:
+            piece.range,
+
+        rp:
+            piece.rp,
+
+        immobile:
+            !!piece.immobile,
+
+        wall:
+            !!piece.wall,
+
+        isBase:
+            false
+
+    };
+
+
+    board[y][x] =
+        unit;
+
+}
+
+
+/* =========================================================
+   购买
+========================================================= */
+
+function buyAndPlace(piece) {
+
+    if (
+        players[currentPlayer].stars <
+        piece.price
+    ) {
+
+        addLog(
+            `${playerNames[currentPlayer]} 的 Stars 不足，无法购买 ${piece.name}`,
+            currentPlayer
+        );
+
+        return;
+
+    }
+
+
+    const position =
+        findFreeDeploymentPosition(
+            currentPlayer
+        );
+
+
+    if (!position) {
+
+        addLog(
+            "没有可用的部署位置",
+            currentPlayer
+        );
+
+        return;
+
+    }
+
+
+    players[currentPlayer]
+        .stars -=
+        piece.price;
+
+
+    placePiece(
+        piece,
+        currentPlayer,
+        position.x,
+        position.y
+    );
+
+
+    addLog(
+        `${playerNames[currentPlayer]} 获得了 ${piece.name} 花瓣`,
+        currentPlayer
+    );
+
+
+    render();
+
+    updateShopDisabled();
+
+}
+
+
+function buyDuringBattle(piece) {
+
+    if (
+        players[currentPlayer].stars <
+        piece.price
+    ) {
+
+        addLog(
+            `${playerNames[currentPlayer]} 的 Stars 不足`,
+            currentPlayer
+        );
+
+        return;
+
+    }
+
+
+    const position =
+        findFreeBattleSpawn(
+            currentPlayer
+        );
+
+
+    if (!position) {
+
+        addLog(
+            "没有可用的花瓣出生位置",
+            currentPlayer
+        );
+
+        return;
+
+    }
+
+
+    players[currentPlayer]
+        .stars -=
+        piece.price;
+
+
+    placePiece(
+        piece,
+        currentPlayer,
+        position.x,
+        position.y
+    );
+
+
+    addLog(
+        `${playerNames[currentPlayer]} 在战斗中购买了 ${piece.name} 花瓣`,
+        currentPlayer
+    );
+
+
+    render();
+
+    updateShopDisabled();
+
+}
+
+
+/* =========================================================
+   拖放部署
+========================================================= */
+
+boardElement.addEventListener(
+    "dragover",
+    e => {
+
+        if (
+            phase !==
+            "deployment"
+        ) {
+
+            return;
+
+        }
+
+        e.preventDefault();
+
+    }
+);
+
+
+boardElement.addEventListener(
+    "drop",
+    e => {
+
+        if (
+            phase !==
+            "deployment"
+        ) {
+
+            return;
+
+        }
+
+
+        e.preventDefault();
+
+
+        const pieceId =
+            e.dataTransfer.getData(
+                "pieceId"
+            );
+
+
+        const piece =
+            PIECES.find(
+                p =>
+                    p.id === pieceId
+            );
+
+
+        if (!piece) return;
+
+
+        const rect =
+            boardElement.getBoundingClientRect();
+
+
+        const cellWidth =
+            rect.width /
+            BOARD_SIZE;
+
+
+        const cellHeight =
+            rect.height /
+            BOARD_SIZE;
+
+
+        const x =
+            Math.floor(
+                (
+                    e.clientX -
+                    rect.left
+                ) /
+                cellWidth
+            );
+
+
+        const y =
+            Math.floor(
+                (
+                    e.clientY -
+                    rect.top
+                ) /
+                cellHeight
+            );
+
+
+        if (
+            x < 0 ||
+            x >= BOARD_SIZE ||
+            y < 0 ||
+            y >= BOARD_SIZE
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            !isOwnDeploymentCell(
+                x,
+                y
+            )
+        ) {
+
+            addLog(
+                "只能将花瓣部署在自己的区域",
+                currentPlayer
+            );
+
+            return;
+
+        }
+
+
+        if (
+            board[y][x]
+        ) {
+
+            addLog(
+                "该格已经有花瓣",
+                currentPlayer
+            );
+
+            return;
+
+        }
+
+
+        if (
+            players[currentPlayer].stars <
+            piece.price
+        ) {
+
+            addLog(
+                "Stars 不足",
+                currentPlayer
+            );
+
+            return;
+
+        }
+
+
+        players[currentPlayer]
+            .stars -=
+            piece.price;
+
+
+        placePiece(
+            piece,
+            currentPlayer,
+            x,
+            y
+        );
+
+
+        addLog(
+            `${playerNames[currentPlayer]} 部署了 ${piece.name} 花瓣`,
+            currentPlayer
+        );
+
+
+        render();
+
+        updateShopDisabled();
+
+    }
+);
+
+
+/* =========================================================
+   部署区域
+========================================================= */
+
+function isOwnDeploymentCell(
+    x,
+    y
+) {
+
+    if (
+        currentPlayer === 1
+    ) {
+
+        return (
+            x <
+            BOARD_SIZE / 2
+        );
+
+    }
+
+
+    return (
+        x >=
+        BOARD_SIZE / 2
+    );
+
+}
+
+
+/* =========================================================
+   Render
+========================================================= */
+
+function render() {
+
+    boardElement.innerHTML = "";
+
+
+    for (
+        let y = 0;
+        y < BOARD_SIZE;
+        y++
+    ) {
+
+        for (
+            let x = 0;
+            x < BOARD_SIZE;
+            x++
+        ) {
+
+            const cell =
+                document.createElement(
+                    "div"
+                );
+
+
+            cell.className =
+                "cell";
+
+
+            cell.dataset.x = x;
+            cell.dataset.y = y;
+
+
+            if (
+                x <
+                BOARD_SIZE / 2
+            ) {
+
+                cell.classList.add(
+                    "left-side"
+                );
+
+            }
+            else {
+
+                cell.classList.add(
+                    "right-side"
+                );
+
+            }
+
+
+            if (
+                x ===
+                BOARD_SIZE / 2 - 1
+            ) {
+
+                cell.classList.add(
+                    "center-line"
+                );
+
+            }
+
+
+            const piece =
+                board[y][x];
+
+
+            if (piece) {
+
+                const pieceElement =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                pieceElement.className =
+                    "piece";
+
+
+                pieceElement.classList.add(
+                    piece.player === 1
+                    ? "flower"
+                    : "leecher"
+                );
+
+
+                if (
+                    piece.isBase
+                ) {
+
+                    pieceElement.classList.add(
+                        "base"
+                    );
+
+                }
+
+
+                if (
+                    piece.wall
+                ) {
+
+                    pieceElement.classList.add(
+                        "wall"
+                    );
+
+                }
+
+
+                if (
+                    selectedPiece &&
+                    selectedPiece.id ===
+                    piece.id
+                ) {
+
+                    pieceElement.classList.add(
+                        "selected"
+                    );
+
+                }
+
+
+                const image =
+                    document.createElement(
+                        "img"
+                    );
+
+
+                image.className =
+                    "piece-image";
+
+
+                image.src =
+                    piece.isBase
+                    ? BASE_IMAGE
+                    : piece.image;
+
+
+                image.alt =
+                    piece.name;
+
+
+                image.draggable =
+                    false;
+
+
+                pieceElement.appendChild(
+                    image
+                );
+
+                /* 花瓣 / 花朵小血条 */
+                const hpBar =
+                    document.createElement("div");
+
+                hpBar.className =
+                    "piece-hp-bar";
+
+                const hpFill =
+                    document.createElement("div");
+
+                hpFill.className =
+                    "piece-hp-fill";
+
+                const hpPercent =
+                    Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            piece.hp / piece.maxHp * 100
+                        )
+                    );
+
+                hpFill.style.width =
+                    hpPercent + "%";
+
+                if (hpPercent <= 25) {
+                    hpFill.classList.add("critical");
+                } else if (hpPercent <= 50) {
+                    hpFill.classList.add("low");
+                }
+
+                hpBar.appendChild(hpFill);
+                pieceElement.appendChild(hpBar);
+
+
+                pieceElement.title =
+                    `${piece.name} HP: ${piece.hp}/${piece.maxHp}`;
+
+
+                cell.appendChild(
+                    pieceElement
+                );
+
+            }
+
+
+            /*
+               显示操作范围
+            */
+
+            if (
+                phase === "battle" &&
+                selectedPiece
+            ) {
+
+                const target =
+                    board[y][x];
+
+
+                const d =
+                    distance(
+                        selectedPiece,
+                        {x, y}
+                    );
+
+
+                /*
+                   移动目标
+
+                   额外要求：
+                   路径没有花瓣阻挡。
+                */
+
+                if (
+                    !target &&
+                    !selectedPiece.immobile &&
+                    d <= MOVE_RANGE
+                ) {
+
+                    if (
+                        !pathIsBlocked(
+                            selectedPiece,
+                            x,
+                            y
+                        )
+                    ) {
+
+                        cell.classList.add(
+                            "move-target"
+                        );
+
+                    }
+
+                }
+
+
+                /*
+                   攻击目标
+                */
+
+                if (
+                    target &&
+                    target.player !==
+                    currentPlayer &&
+                    d <=
+                    selectedPiece.range
+                ) {
+
+                    cell.classList.add(
+                        "attack-target"
+                    );
+
+                }
+
+            }
+
+
+            /*
+               鼠标悬停
+            */
+
+            cell.addEventListener(
+                "mouseenter",
+                () => {
+
+                    updateHoverPreview(
+                        cell,
+                        x,
+                        y
+                    );
+
+                }
+            );
+
+
+            cell.addEventListener(
+                "mouseleave",
+                () => {
+
+                    cell.classList.remove(
+                        "hover-valid",
+                        "hover-invalid"
+                    );
+
+                }
+            );
+
+
+            cell.addEventListener(
+                "click",
+                () => {
+
+                    handleCellClick(
+                        x,
+                        y
+                    );
+
+                }
+            );
+
+
+            boardElement.appendChild(
+                cell
+            );
+
+        }
+
+    }
+
+
+    updatePlayerPanels();
+
+}
+
+
+/* =========================================================
+   悬停操作预览
+========================================================= */
+
+function updateHoverPreview(
+    cell,
+    x,
+    y
+) {
+
+    cell.classList.remove(
+        "hover-valid",
+        "hover-invalid"
+    );
+
+
+    if (
+        phase !== "battle" ||
+        !selectedPiece
+    ) {
+
+        return;
+
+    }
+
+
+    const target =
+        board[y][x];
+
+
+    const d =
+        distance(
+            selectedPiece,
+            {x, y}
+        );
+
+
+    let valid = false;
+
+
+    /*
+       移动
+    */
+
+    if (
+        !target &&
+        !selectedPiece.immobile &&
+        d <= MOVE_RANGE &&
+        players[currentPlayer].rp >=
+        MOVE_COST
+    ) {
+
+        if (
+            !pathIsBlocked(
+                selectedPiece,
+                x,
+                y
+            )
+        ) {
+
+            valid = true;
+
+        }
+
+    }
+
+
+    /*
+       攻击
+    */
+
+    if (
+        target &&
+        target.player !== currentPlayer &&
+        d <= selectedPiece.range &&
+        players[currentPlayer].rp >=
+        selectedPiece.rp &&
+        selectedPiece.damage > 0
+    ) {
+
+        valid = true;
+
+    }
+
+
+    /*
+       己方花瓣
+    */
+
+    if (
+        target &&
+        target.player === currentPlayer
+    ) {
+
+        valid = false;
+
+    }
+
+
+    /*
+       不可移动的花朵/蜂蜡
+    */
+
+    if (
+        selectedPiece.immobile &&
+        !target
+    ) {
+
+        valid = false;
+
+    }
+
+
+    if (valid) {
+
+        cell.classList.add(
+            "hover-valid"
+        );
+
+    }
+    else {
+
+        cell.classList.add(
+            "hover-invalid"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   点击格子
+========================================================= */
+
+function handleCellClick(
+    x,
+    y
+) {
+
+    if (
+        phase !== "battle"
+    ) {
+
+        return;
+
+    }
+
+
+    const target =
+        board[y][x];
+
+
+    /*
+       选择自己的花瓣
+    */
+
+    if (!selectedPiece) {
+
+        if (
+            target &&
+            target.player ===
+            currentPlayer
+        ) {
+
+            selectedPiece =
+                target;
+
+
+            render();
+
+
+            addLog(
+                `${playerNames[currentPlayer]} 选中了 ${target.name}`,
+                currentPlayer
+            );
+
+        }
+
+        return;
+
+    }
+
+
+    /*
+       点击己方花瓣
+    */
+
+    if (
+        target &&
+        target.player ===
+        currentPlayer
+    ) {
+
+        selectedPiece =
+            target;
+
+        render();
+
+        return;
+
+    }
+
+
+    /*
+       攻击
+    */
+
+    if (
+        target &&
+        target.player !== currentPlayer
+    ) {
+
+        const d =
+            distance(
+                selectedPiece,
+                target
+            );
+
+
+        if (
+            d <=
+            selectedPiece.range
+        ) {
+
+            if (
+                selectedPiece.damage <= 0
+            ) {
+
+                addLog(
+                    `${selectedPiece.name} 无法攻击`,
+                    currentPlayer
+                );
+
+                return;
+
+            }
+
+
+            if (
+                players[currentPlayer].rp >=
+                selectedPiece.rp
+            ) {
+
+                attack(
+                    selectedPiece,
+                    target
+                );
+
+                return;
+
+            }
+
+
+            addLog(
+                "RP 不足，无法攻击",
+                currentPlayer
+            );
+
+            return;
+
+        }
+
+        return;
+
+    }
+
+
+    /*
+       移动
+    */
+
+    if (!target) {
+
+        if (
+            selectedPiece.immobile
+        ) {
+
+            addLog(
+                `${selectedPiece.name} 无法移动`,
+                currentPlayer
+            );
+
+            return;
+
+        }
+
+
+        const d =
+            distance(
+                selectedPiece,
+                {x, y}
+            );
+
+
+        if (
+            d <= MOVE_RANGE
+        ) {
+
+            if (
+                pathIsBlocked(
+                    selectedPiece,
+                    x,
+                    y
+                )
+            ) {
+
+                addLog(
+                    `${selectedPiece.name} 的移动路径被其他花瓣阻挡`,
+                    currentPlayer
+                );
+
+                return;
+
+            }
+
+
+            if (
+                players[currentPlayer].rp >=
+                MOVE_COST
+            ) {
+
+                movePiece(
+                    selectedPiece,
+                    x,
+                    y
+                );
+
+                return;
+
+            }
+
+
+            addLog(
+                "RP 不足，无法移动",
+                currentPlayer
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   移动
+========================================================= */
+
+function movePiece(
+    piece,
+    x,
+    y
+) {
+    if (piece.immobile) {
+        return;
+    }
+
+    const oldX = piece.x;
+    const oldY = piece.y;
+
+    if (distance(piece, {x, y}) > MOVE_RANGE) {
+        addLog(
+            `移动距离不能超过 ${MOVE_RANGE} 格`,
+            currentPlayer
+        );
+        return;
+    }
+
+    if (pathIsBlocked(piece, x, y)) {
+        addLog(
+            "移动路径存在花瓣阻挡",
+            currentPlayer
+        );
+        return;
+    }
+
+    if (players[currentPlayer].rp < MOVE_COST) {
+        addLog(
+            "RP 不足，无法移动",
+            currentPlayer
+        );
+        return;
+    }
+
+    const oldCell =
+        boardElement.querySelector(
+            `.cell[data-x="${oldX}"][data-y="${oldY}"]`
+        );
+
+    const newCell =
+        boardElement.querySelector(
+            `.cell[data-x="${x}"][data-y="${y}"]`
+        );
+
+    const pieceElement =
+        oldCell
+        ? oldCell.querySelector(".piece")
+        : null;
+
+    let ghost = null;
+    let oldRect = null;
+
+    if (pieceElement && oldCell && newCell) {
+        oldRect = pieceElement.getBoundingClientRect();
+
+        ghost = pieceElement.cloneNode(true);
+
+        ghost.classList.remove(
+            "selected",
+            "hit-shake",
+            "attack-animation",
+            "damage-flash"
+        );
+
+        ghost.classList.add("movement-ghost");
+
+        ghost.style.left = oldRect.left + "px";
+        ghost.style.top = oldRect.top + "px";
+        ghost.style.width = oldRect.width + "px";
+        ghost.style.height = oldRect.height + "px";
+
+        document.body.appendChild(ghost);
+    }
+
+    players[currentPlayer].rp -= MOVE_COST;
+
+    board[oldY][oldX] = null;
+
+    piece.x = x;
+    piece.y = y;
+
+    board[y][x] = piece;
+
+    addLog(
+        `${playerNames[currentPlayer]} 的 ${piece.name} 移动了`,
+        currentPlayer
+    );
+
+    selectedPiece = piece;
+
+    render();
+    updateShopDisabled();
+
+    if (ghost && newCell && oldRect) {
+        const newRect =
+            newCell.getBoundingClientRect();
+
+        const dx =
+            newRect.left - oldRect.left;
+
+        const dy =
+            newRect.top - oldRect.top;
+
+        requestAnimationFrame(() => {
+            ghost.style.transform =
+                `translate(${dx}px, ${dy}px)`;
+        });
+
+        setTimeout(() => {
+            ghost.remove();
+        }, 360);
+    }
+}
+
+/* =========================================================
+   攻击
+========================================================= */
+
+function attack(
+    attacker,
+    target
+) {
+    players[currentPlayer].rp -= attacker.rp;
+
+    const attackerElement =
+        findPieceElement(attacker.id);
+
+    const targetElement =
+        findPieceElement(target.id);
+
+    if (attackerElement) {
+        attackerElement.classList.add(
+            "attack-animation"
+        );
+    }
+
+    target.hp -= attacker.damage;
+
+    if (target.hp < 0) {
+        target.hp = 0;
+    }
+
+    addLog(
+        `${playerNames[currentPlayer]} 的 ${attacker.name} 攻击 ${target.name}，造成 ${attacker.damage} 点伤害`,
+        currentPlayer
+    );
+
+    /*
+       不立即 render，避免重建 DOM 把受击动画清掉。
+       直接同步当前目标的血条。
+    */
+    if (targetElement) {
+        const hpFill =
+            targetElement.querySelector(
+                ".piece-hp-fill"
+            );
+
+        if (hpFill) {
+            const percent =
+                Math.max(
+                    0,
+                    target.hp / target.maxHp * 100
+                );
+
+            hpFill.style.width =
+                percent + "%";
+
+            hpFill.classList.remove(
+                "low",
+                "critical"
+            );
+
+            if (percent <= 25) {
+                hpFill.classList.add("critical");
+            } else if (percent <= 50) {
+                hpFill.classList.add("low");
+            }
+        }
+
+        targetElement.classList.remove(
+            "hit-shake",
+            "damage-flash"
+        );
+
+        void targetElement.offsetWidth;
+
+        targetElement.classList.add(
+            "hit-shake",
+            "damage-flash"
+        );
+
+        const damageNumber =
+            document.createElement("div");
+
+        damageNumber.className =
+            "damage-number";
+
+        damageNumber.textContent =
+            `-${attacker.damage}`;
+
+        targetElement.appendChild(
+            damageNumber
+        );
+
+        setTimeout(() => {
+            damageNumber.remove();
+        }, 760);
+    }
+
+    updatePlayerPanels();
+
+    if (target.hp <= 0) {
+        if (target.isBase) {
+            addLog(
+                `${playerNames[target.player]} 的花朵被摧毁！`,
+                currentPlayer
+            );
+
+            setTimeout(() => {
+                gameOver(currentPlayer);
+            }, 420);
+
+            return;
+        }
+
+        if (targetElement) {
+            targetElement.classList.add(
+                "death-animation"
+            );
+        }
+
+        board[target.y][target.x] = null;
+
+        setTimeout(() => {
+            render();
+        }, 300);
+    } else {
+        setTimeout(() => {
+            render();
+        }, 300);
+    }
+
+    selectedPiece = attacker;
+    updateShopDisabled();
+}
+
+/* =========================================================
+   找花瓣元素
+========================================================= */
+
+function findPieceElement(
+    id
+) {
+
+    const cells =
+        document.querySelectorAll(
+            ".cell"
+        );
+
+
+    for (
+        const cell of cells
+    ) {
+
+        const x =
+            Number(
+                cell.dataset.x
+            );
+
+        const y =
+            Number(
+                cell.dataset.y
+            );
+
+
+        const piece =
+            board[y][x];
+
+
+        if (
+            piece &&
+            piece.id === id
+        ) {
+
+            return cell.querySelector(
+                ".piece"
+            );
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   完成部署
+========================================================= */
+
+document
+.getElementById("complete-btn")
+.addEventListener(
+    "click",
+    () => {
+
+        deploymentFinished[
+            currentPlayer
+        ] = true;
+
+
+        addLog(
+            `${playerNames[currentPlayer]} 完成部署`,
+            currentPlayer
+        );
+
+
+        if (
+            deploymentFinished[1] &&
+            deploymentFinished[2]
+        ) {
+
+            startBattle();
+
+            return;
+
+        }
+
+
+        currentPlayer =
+            currentPlayer === 1
+            ? 2
+            : 1;
+
+
+        addLog(
+            `轮到 ${playerNames[currentPlayer]} 部署`,
+            currentPlayer
+        );
+
+
+        render();
+
+        updateShopDisabled();
+
+    }
+);
+
+
+/* =========================================================
+   开始战斗
+========================================================= */
+
+function startBattle() {
+
+    phase =
+        "battle";
+
+
+    currentPlayer =
+        1;
+
+
+    players[1].rp =
+        MAX_RP;
+
+    players[2].rp =
+        MAX_RP;
+
+
+    selectedPiece =
+        null;
+
+
+    document.getElementById(
+        "complete-btn"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "end-turn-btn"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "phase-label"
+    ).textContent =
+        "战斗阶段";
+
+
+    addLog(
+        "双方部署完成，战斗开始！",
+        0
+    );
+
+
+    addLog(
+        `${playerNames[1]} 先手`,
+        1
+    );
+
+
+    render();
+
+    updateShopDisabled();
+
+}
+
+
+/* =========================================================
+   结束回合
+========================================================= */
+
+document
+.getElementById("end-turn-btn")
+.addEventListener(
+    "click",
+    () => {
+
+        if (
+            phase !== "battle"
+        ) {
+
+            return;
+
+        }
+
+
+        selectedPiece =
+            null;
+
+
+        currentPlayer =
+            currentPlayer === 1
+            ? 2
+            : 1;
+
+
+        players[currentPlayer].rp =
+            MAX_RP;
+
+
+        addLog(
+            `${playerNames[currentPlayer]} 的回合开始，RP 已恢复至 ${MAX_RP}`,
+            currentPlayer
+        );
+
+
+        render();
+
+        updateShopDisabled();
+
+    }
+);
+
+
+/* =========================================================
+   玩家信息
+========================================================= */
+
+function updatePlayerPanels() {
+
+    document.getElementById(
+        "left-stars"
+    ).textContent =
+        players[1].stars;
+
+
+    document.getElementById(
+        "right-stars"
+    ).textContent =
+        players[2].stars;
+
+
+    document.getElementById(
+        "left-rp"
+    ).textContent =
+        players[1].rp;
+
+
+    document.getElementById(
+        "right-rp"
+    ).textContent =
+        players[2].rp;
+
+
+    const leftBase =
+        findBase(1);
+
+
+    const rightBase =
+        findBase(2);
+
+
+    document.getElementById(
+        "left-hp"
+    ).textContent =
+        leftBase
+        ? leftBase.hp
+        : 0;
+
+
+    document.getElementById(
+        "right-hp"
+    ).textContent =
+        rightBase
+        ? rightBase.hp
+        : 0;
+
+
+    document.getElementById(
+        "left-player-panel"
+    ).classList.toggle(
+        "active",
+        phase === "battle" &&
+        currentPlayer === 1
+    );
+
+
+    document.getElementById(
+        "right-player-panel"
+    ).classList.toggle(
+        "active",
+        phase === "battle" &&
+        currentPlayer === 2
+    );
+
+
+    document.getElementById(
+        "left-turn"
+    ).textContent =
+        phase === "battle" &&
+        currentPlayer === 1
+        ? "● 当前回合"
+        : "";
+
+
+    document.getElementById(
+        "right-turn"
+    ).textContent =
+        phase === "battle" &&
+        currentPlayer === 2
+        ? "● 当前回合"
+        : "";
+
+}
+
+
+/* =========================================================
+   找花朵
+========================================================= */
+
+function findBase(player) {
+
+    for (
+        let y = 0;
+        y < BOARD_SIZE;
+        y++
+    ) {
+
+        for (
+            let x = 0;
+            x < BOARD_SIZE;
+            x++
+        ) {
+
+            const piece =
+                board[y][x];
+
+
+            if (
+                piece &&
+                piece.isBase &&
+                piece.player === player
+            ) {
+
+                return piece;
+
+            }
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   日志
+========================================================= */
+
+function addLog(
+    text,
+    player = 0
+) {
+
+    const log =
+        document.getElementById(
+            "log-content"
+        );
+
+
+    const entry =
+        document.createElement(
+            "div"
+        );
+
+
+    entry.className =
+        "log-entry";
+
+
+    if (
+        player === 1
+    ) {
+
+        entry.classList.add(
+            "flower"
+        );
+
+    }
+
+
+    if (
+        player === 2
+    ) {
+
+        entry.classList.add(
+            "leecher"
+        );
+
+    }
+
+
+    const time =
+        new Date()
+        .toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            }
+        );
+
+
+    entry.textContent =
+        `[${time}] ${text}`;
+
+
+    log.appendChild(
+        entry
+    );
+
+
+    log.scrollTop =
+        log.scrollHeight;
+
+}
+
+
+/* =========================================================
+   游戏结束
+========================================================= */
+
+function gameOver(winner) {
+
+    phase =
+        "gameover";
+
+
+    selectedPiece =
+        null;
+
+
+    document.getElementById(
+        "game-over-title"
+    ).textContent =
+        `${playerNames[winner]} 获胜！`;
+
+
+    document.getElementById(
+        "game-over"
+    ).classList.add(
+        "show"
+    );
+
+}
+
+
+/* =========================================================
+   返回主页
+========================================================= */
+
+function returnHome() {
+
+    phase =
+        "home";
+
+
+    selectedPiece =
+        null;
+
+
+    document.getElementById(
+        "game-over"
+    ).classList.remove(
+        "show"
+    );
+
+
+    gamePage.classList.remove(
+        "active"
+    );
+
+
+    homePage.classList.add(
+        "active"
+    );
+
+}
+
+
+document
+.getElementById("back-home-btn")
+.addEventListener(
+    "click",
+    returnHome
+);
+
+
+document
+.getElementById("restart-button")
+.addEventListener(
+    "click",
+    returnHome
+);
+
+
+/* =========================================================
+   Enter 开始
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        if (
+            e.key === "Enter" &&
+            homePage.classList.contains(
+                "active"
+            )
+        ) {
+
+            startGame();
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
 </html>
