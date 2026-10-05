@@ -3497,40 +3497,25 @@ function movePiece(
             `.cell[data-x="${oldX}"][data-y="${oldY}"]`
         );
 
-    const newCell =
-        boardElement.querySelector(
-            `.cell[data-x="${x}"][data-y="${y}"]`
-        );
-
     const pieceElement =
         oldCell
         ? oldCell.querySelector(".piece")
         : null;
 
-    let ghost = null;
-    let oldRect = null;
+    /*
+       使用 FLIP 动画：
+       1. 先记录原花瓣的位置
+       2. 更新棋盘并 render 到目标格
+       3. 让目标格中的真实花瓣从“原位置”开始
+       4. 再恢复 transform，让浏览器自动平滑移动
 
-    if (pieceElement && oldCell && newCell) {
-        oldRect = pieceElement.getBoundingClientRect();
-
-        ghost = pieceElement.cloneNode(true);
-
-        ghost.classList.remove(
-            "selected",
-            "hit-shake",
-            "attack-animation",
-            "damage-flash"
-        );
-
-        ghost.classList.add("movement-ghost");
-
-        ghost.style.left = oldRect.left + "px";
-        ghost.style.top = oldRect.top + "px";
-        ghost.style.width = oldRect.width + "px";
-        ghost.style.height = oldRect.height + "px";
-
-        document.body.appendChild(ghost);
-    }
+       这样不会再创建脱离棋盘的 ghost，也不会出现
+       花瓣先瞬移、随后克隆体漂到左上角的问题。
+    */
+    const oldRect =
+        pieceElement
+        ? pieceElement.getBoundingClientRect()
+        : null;
 
     players[currentPlayer].rp -= MOVE_COST;
 
@@ -3551,24 +3536,45 @@ function movePiece(
     render();
     updateShopDisabled();
 
-    if (ghost && newCell && oldRect) {
-        const newRect =
-            newCell.getBoundingClientRect();
+    if (oldRect) {
+        const newCell =
+            boardElement.querySelector(
+                `.cell[data-x="${x}"][data-y="${y}"]`
+            );
 
-        const dx =
-            newRect.left - oldRect.left;
+        const newPieceElement =
+            newCell
+            ? newCell.querySelector(".piece")
+            : null;
 
-        const dy =
-            newRect.top - oldRect.top;
+        if (newPieceElement) {
+            const newRect =
+                newPieceElement.getBoundingClientRect();
 
-        requestAnimationFrame(() => {
-            ghost.style.transform =
-                `translate(${dx}px, ${dy}px)`;
-        });
+            const dx = oldRect.left - newRect.left;
+            const dy = oldRect.top - newRect.top;
 
-        setTimeout(() => {
-            ghost.remove();
-        }, 360);
+            newPieceElement.style.transition = "none";
+            newPieceElement.style.transform =
+                `translate3d(${dx}px, ${dy}px, 0)`;
+
+            /* 强制浏览器先应用起始位置，再开始过渡 */
+            newPieceElement.getBoundingClientRect();
+
+            requestAnimationFrame(() => {
+                newPieceElement.style.transition =
+                    "transform .32s cubic-bezier(.2,.8,.2,1)";
+                newPieceElement.style.transform =
+                    "translate3d(0, 0, 0)";
+            });
+
+            setTimeout(() => {
+                if (newPieceElement) {
+                    newPieceElement.style.transition = "";
+                    newPieceElement.style.transform = "";
+                }
+            }, 360);
+        }
     }
 }
 
