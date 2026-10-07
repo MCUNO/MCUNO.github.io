@@ -197,6 +197,91 @@ input {
     transform: scale(.98);
 }
 
+.about-button {
+    width: 100%;
+    height: 42px;
+    margin-top: 9px;
+    border: 1px solid #d8d8d8;
+    border-radius: 8px;
+    background: #fff;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        transform .15s ease,
+        box-shadow .15s ease;
+}
+
+.about-button:hover {
+    background: #fafafa;
+    border-color: #aaa;
+    box-shadow: 0 5px 16px rgba(0,0,0,.08);
+    transform: translateY(-1px);
+}
+
+.about-button:active {
+    transform: scale(.98);
+}
+
+.about-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.18);
+    z-index: 200;
+}
+
+.about-modal.show {
+    display: flex;
+}
+
+.about-box {
+    position: relative;
+    width: min(520px, 88vw);
+    min-height: 220px;
+    padding: 28px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.15);
+}
+
+.about-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #444;
+    text-align: center;
+}
+
+.about-content {
+    min-height: 150px;
+}
+
+.about-close {
+    position: absolute;
+    top: 9px;
+    right: 11px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    color: #999;
+    font-size: 24px;
+    line-height: 30px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.about-close:hover {
+    background: #f5f5f5;
+    color: #555;
+}
+
+
 .developers {
     position: absolute;
 
@@ -446,6 +531,8 @@ input {
     color: #777;
 }
 
+.tooltip-description { margin:5px 0 7px; min-height:15px; font-size:11px; line-height:15px; color:#999; }
+
 .tooltip-row span:last-child {
     color: #444;
     font-weight: 600;
@@ -518,6 +605,15 @@ input {
     line-height: 19px;
     color: #777;
 }
+
+.resource-bars { display:flex; flex-direction:column; gap:5px; }
+.resource-row { display:flex; align-items:center; gap:6px; }
+.resource-label { width:38px; flex:0 0 38px; font-size:10px; color:#888; }
+.resource-bar { flex:1; height:7px; background:rgba(0,0,0,.10); border-radius:5px; overflow:hidden; }
+.resource-fill { width:100%; height:100%; border-radius:inherit; transition:width .22s ease, background .22s ease; }
+.hp-bar .resource-fill { background:#e35d5d; }
+.stars-bar .resource-fill { background:#e3b72f; }
+.rp-bar .resource-fill { background:#4e9ddd; }
 
 .turn-indicator {
     margin-top: 5px;
@@ -605,14 +701,17 @@ input {
     border-bottom: none;
 }
 
-.cell.left-side {
-    background:
-        rgba(255,247,210,.18);
+.cell.left-side,
+.cell.right-side {
+    background: #fff;
 }
 
-.cell.right-side {
-    background:
-        rgba(220,250,225,.18);
+.cell.occupied-left {
+    background: #ffe46b !important;
+}
+
+.cell.occupied-right {
+    background: #8fe29b !important;
 }
 
 .cell.center-line {
@@ -949,22 +1048,6 @@ input {
     80% { transform: translateX(3px); }
 }
 
-.movement-ghost {
-    position: fixed;
-    z-index: 9999;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform .32s cubic-bezier(.2,.8,.2,1);
-}
-
-.movement-ghost img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
 /* =========================================================
    动画
 ========================================================= */
@@ -1021,11 +1104,11 @@ input {
 @keyframes damageFlash {
 
     0%,100% {
-        filter: brightness(1);
+        filter: none;
     }
 
     50% {
-        filter: brightness(1.8);
+        filter: brightness(1.15) saturate(4) sepia(.8) hue-rotate(315deg);
     }
 }
 
@@ -1188,6 +1271,13 @@ input {
             开始游戏
         </button>
 
+        <button
+            class="about-button"
+            id="about-game-button"
+        >
+            关于此游戏
+        </button>
+
     </div>
 
 
@@ -1210,6 +1300,34 @@ input {
     </div>
 
 </section>
+
+
+<!-- =====================================================
+     ABOUT
+====================================================== -->
+
+<div
+    class="about-modal"
+    id="about-modal"
+>
+    <div class="about-box">
+        <button
+            class="about-close"
+            id="about-close-button"
+            aria-label="关闭"
+        >×</button>
+
+        <div class="about-title">
+            关于此游戏
+        </div>
+
+        <div
+            class="about-content"
+            id="about-content"
+        >炎炎夏日，肥美的Cod在学校发明了一种叫“南极庭院“的棋类游戏和他的好基友Andrew玩，后来乐不思蜀了，决定改造成florr二创游戏
+    </div>
+    </div>
+</div>
 
 
 
@@ -1287,21 +1405,10 @@ input {
                 Flower
             </div>
 
-            <div class="player-stats">
-
-                HP：
-                <span id="left-hp">100</span>
-
-                <br>
-
-                Stars：
-                <span id="left-stars">100</span>
-
-                <br>
-
-                RP：
-                <span id="left-rp">10</span>
-
+            <div class="resource-bars">
+                <div class="resource-row"><span class="resource-label">HP</span><div class="resource-bar hp-bar"><div id="left-hp-fill" class="resource-fill"></div></div></div>
+                <div class="resource-row"><span class="resource-label">Stars</span><div class="resource-bar stars-bar"><div id="left-stars-fill" class="resource-fill"></div></div></div>
+                <div class="resource-row"><span class="resource-label">RP</span><div class="resource-bar rp-bar"><div id="left-rp-fill" class="resource-fill"></div></div></div>
             </div>
 
             <div
@@ -1326,21 +1433,10 @@ input {
                 Leecher
             </div>
 
-            <div class="player-stats">
-
-                HP：
-                <span id="right-hp">100</span>
-
-                <br>
-
-                Stars：
-                <span id="right-stars">100</span>
-
-                <br>
-
-                RP：
-                <span id="right-rp">10</span>
-
+            <div class="resource-bars">
+                <div class="resource-row"><span class="resource-label">HP</span><div class="resource-bar hp-bar"><div id="right-hp-fill" class="resource-fill"></div></div></div>
+                <div class="resource-row"><span class="resource-label">Stars</span><div class="resource-bar stars-bar"><div id="right-stars-fill" class="resource-fill"></div></div></div>
+                <div class="resource-row"><span class="resource-label">RP</span><div class="resource-bar rp-bar"><div id="right-rp-fill" class="resource-fill"></div></div></div>
             </div>
 
             <div
@@ -1459,18 +1555,20 @@ const PIECES = [
 
         name: "刺",
 
+        description: "哎呦我去啥玩意那么疼哦你耐久拉完了",
+
         image:
         "https://static.wikia.nocookie.net/florrio/images/b/b8/%E5%88%BA%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260218085706&path-prefix=zh",
 
-        price: 20,
+        price: 10,
 
-        damage: 15,
+        damage: 20,
 
-        hp: 60,
+        hp: 15,
 
-        range: 1,
+        range: 2,
 
-        rp: 2
+        rp: 4
 
     },
 
@@ -1480,18 +1578,22 @@ const PIECES = [
 
         name: "导弹",
 
+        description: "GuGuGaGa, I can kill u zillions of lys away~",
+
         image:
         "https://static.wikia.nocookie.net/florrio/images/c/c4/%E6%9C%BA%E6%A2%B0%E5%AF%BC%E5%BC%B9%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260405104304&path-prefix=zh",
 
-        price: 30,
+        price: 6,
 
-        damage: 12,
+        damage: 10,
 
-        hp: 40,
+        hp: 20,
 
-        range: 4,
+        range: 10,
 
-        rp: 3
+        rp: 2,
+
+        lineOnly: true
 
     },
 
@@ -1501,14 +1603,16 @@ const PIECES = [
 
         name: "锯片",
 
+        description: "bro别打了...呜呜呜和苏太坏了",
+
         image:
         "https://static.wikia.nocookie.net/florrio/images/0/07/%E9%94%AF%E7%89%87%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260405103753&path-prefix=zh",
 
-        price: 45,
+        price: 15,
 
-        damage: 25,
+        damage: 18,
 
-        hp: 90,
+        hp: 45,
 
         range: 1,
 
@@ -1522,18 +1626,20 @@ const PIECES = [
 
         name: "玉米",
 
+        description: "老～不～死～的～",
+
         image:
         "https://static.wikia.nocookie.net/florrio/images/e/ea/%E7%8E%89%E7%B1%B3%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260301111825&path-prefix=zh",
 
-        price: 50,
+        price: 8,
 
-        damage: 30,
+        damage: 5,
 
-        hp: 35,
+        hp: 60,
 
-        range: 3,
+        range: 2,
 
-        rp: 4
+        rp: 2
 
     },
 
@@ -1543,18 +1649,20 @@ const PIECES = [
 
         name: "灰尘",
 
+        description: "阿嚏～啥阴啊。。",
+
         image:
         "https://static.wikia.nocookie.net/florrio/images/7/74/%E7%81%B0%E5%B0%98%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260423142244&path-prefix=zh",
 
-        price: 40,
+        price: 10,
 
-        damage: 40,
+        damage: 5,
 
-        hp: 30,
+        hp: 25,
 
         range: 2,
 
-        rp: 5
+        rp: 1
 
     },
 
@@ -1564,18 +1672,70 @@ const PIECES = [
 
         name: "翅膀",
 
+        description: "飞天苍蝇，来去如风（Cod的最爱）",
+
         image:
         "https://static.wikia.nocookie.net/florrio/images/c/c7/%E7%BF%85%E8%86%80%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260218085634&path-prefix=zh",
 
-        price: 35,
+        price: 11,
 
-        damage: 18,
+        damage: 10,
 
-        hp: 45,
+        hp: 35,
 
-        range: 5,
+        range: 4,
 
         rp: 3
+
+    },
+
+
+    {
+        id: "laser",
+
+        name: "激光器",
+
+        description: "小而精准的激光，攻击可以无视障碍物。",
+
+        image:
+        "https://static.wikia.nocookie.net/florrio/images/0/09/%E6%BF%80%E5%85%89%E5%99%A8%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260405104050&path-prefix=zh",
+
+        price: 12,
+
+        damage: 5,
+
+        hp: 25,
+
+        range: 3,
+
+        rp: 1,
+
+        ignoreAttackBlock: true
+
+    },
+
+
+    {
+        id: "battery",
+
+        name: "电池",
+
+        description: "攻击会将伤害传导至周围敌方花瓣，最远传导 3 格。",
+
+        image:
+        "https://static.wikia.nocookie.net/florrio/images/8/82/%E7%94%B5%E6%B1%A0%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260405112434&path-prefix=zh",
+
+        price: 15,
+
+        damage: 12,
+
+        hp: 40,
+
+        range: 2,
+
+        rp: 2,
+
+        chainAttack: true
 
     },
 
@@ -1585,14 +1745,16 @@ const PIECES = [
 
         name: "蜂蜡",
 
+        description: "困万夫莫开！",
+
         image:
         "https://static.wikia.nocookie.net/florrio/images/9/9e/%E8%9C%82%E8%9C%A1%EF%BC%88%E6%B0%B8%E6%81%92%EF%BC%89.png/revision/latest/scale-to-width-down/180?cb=20260405104225&path-prefix=zh",
 
-        price: 55,
+        price: 5,
 
         damage: 0,
 
-        hp: 160,
+        hp: 100,
 
         range: 0,
 
@@ -1627,6 +1789,8 @@ const MOVE_COST = 4;
 
 const MOVE_RANGE = 3;
 
+let isAnimating = false;
+
 
 /* =========================================================
    玩家
@@ -1659,12 +1823,12 @@ let deploymentFinished = {
 
 let players = {
     1: {
-        stars: 100,
+        stars: 200,
         rp: MAX_RP
     },
 
     2: {
-        stars: 100,
+        stars: 200,
         rp: MAX_RP
     }
 };
@@ -1699,6 +1863,45 @@ document
 .addEventListener(
     "click",
     startGame
+);
+
+const aboutModal =
+    document.getElementById("about-modal");
+
+document
+.getElementById("about-game-button")
+.addEventListener(
+    "click",
+    () => {
+        aboutModal.classList.add("show");
+    }
+);
+
+document
+.getElementById("about-close-button")
+.addEventListener(
+    "click",
+    () => {
+        aboutModal.classList.remove("show");
+    }
+);
+
+aboutModal.addEventListener(
+    "click",
+    e => {
+        if (e.target === aboutModal) {
+            aboutModal.classList.remove("show");
+        }
+    }
+);
+
+document.addEventListener(
+    "keydown",
+    e => {
+        if (e.key === "Escape") {
+            aboutModal.classList.remove("show");
+        }
+    }
 );
 
 
@@ -2026,6 +2229,8 @@ function showPieceTooltip(
 
         </div>
 
+        <div class="tooltip-description">${piece.description || ""}</div>
+
         <div class="tooltip-row">
             <span>Stars</span>
             <span>${piece.price}</span>
@@ -2068,6 +2273,39 @@ function showPieceTooltip(
                 <div class="tooltip-row">
                     <span>类型</span>
                     <span>防御墙</span>
+                </div>
+            `
+            : ""
+        }
+
+        ${
+            piece.lineOnly
+            ? `
+                <div class="tooltip-row">
+                    <span>特殊</span>
+                    <span>只能攻击所在行/列</span>
+                </div>
+            `
+            : ""
+        }
+
+        ${
+            piece.ignoreAttackBlock
+            ? `
+                <div class="tooltip-row">
+                    <span>特殊</span>
+                    <span>攻击无视阻挡</span>
+                </div>
+            `
+            : ""
+        }
+
+        ${
+            piece.chainAttack
+            ? `
+                <div class="tooltip-row">
+                    <span>特殊</span>
+                    <span>伤害可传导至 3 格</span>
                 </div>
             `
             : ""
@@ -2293,17 +2531,40 @@ function isPathBlocked(
     return false;
 }
 
-function pathIsBlocked(
-    piece,
-    x,
-    y
-) {
-    return isPathBlocked(
-        piece.x,
-        piece.y,
-        x,
-        y
-    );
+function isBlockingEnemy(piece, otherPiece) {
+    return !!otherPiece && otherPiece.player !== piece.player;
+}
+
+function pathIsBlocked(piece, x, y) {
+    const dx = x - piece.x;
+    const dy = y - piece.y;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    if (steps <= 1) return false;
+    const sx = dx / steps;
+    const sy = dy / steps;
+    for (let i = 1; i < steps; i++) {
+        const cx = Math.round(piece.x + sx * i);
+        const cy = Math.round(piece.y + sy * i);
+        const other = board[cy] && board[cy][cx];
+        if (isBlockingEnemy(piece, other)) return true;
+    }
+    return false;
+}
+
+function attackPathIsBlocked(attacker, target) {
+    const dx = target.x - attacker.x;
+    const dy = target.y - attacker.y;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    if (steps <= 1) return false;
+    const sx = dx / steps;
+    const sy = dy / steps;
+    for (let i = 1; i < steps; i++) {
+        const cx = Math.round(attacker.x + sx * i);
+        const cy = Math.round(attacker.y + sy * i);
+        const other = board[cy] && board[cy][cx];
+        if (isBlockingEnemy(attacker, other)) return true;
+    }
+    return false;
 }
 
 /* =========================================================
@@ -2437,6 +2698,15 @@ function placePiece(
 
         wall:
             !!piece.wall,
+
+        lineOnly:
+            !!piece.lineOnly,
+
+        ignoreAttackBlock:
+            !!piece.ignoreAttackBlock,
+
+        chainAttack:
+            !!piece.chainAttack,
 
         isBase:
             false
@@ -2585,8 +2855,8 @@ boardElement.addEventListener(
     e => {
 
         if (
-            phase !==
-            "deployment"
+            phase !== "deployment" &&
+            phase !== "battle"
         ) {
 
             return;
@@ -2604,8 +2874,8 @@ boardElement.addEventListener(
     e => {
 
         if (
-            phase !==
-            "deployment"
+            phase !== "deployment" &&
+            phase !== "battle"
         ) {
 
             return;
@@ -2852,6 +3122,12 @@ function render() {
 
             if (piece) {
 
+                cell.classList.add(
+                    piece.player === 1
+                    ? "occupied-left"
+                    : "occupied-right"
+                );
+
                 const pieceElement =
                     document.createElement(
                         "div"
@@ -3037,7 +3313,15 @@ function render() {
                     target.player !==
                     currentPlayer &&
                     d <=
-                    selectedPiece.range
+                    selectedPiece.range &&
+                    (!selectedPiece.lineOnly ||
+                        selectedPiece.x === target.x ||
+                        selectedPiece.y === target.y) &&
+                    (selectedPiece.ignoreAttackBlock ||
+                        !attackPathIsBlocked(
+                            selectedPiece,
+                            target
+                        ))
                 ) {
 
                     cell.classList.add(
@@ -3182,6 +3466,11 @@ function updateHoverPreview(
         target &&
         target.player !== currentPlayer &&
         d <= selectedPiece.range &&
+        (!selectedPiece.lineOnly ||
+            selectedPiece.x === target.x ||
+            selectedPiece.y === target.y) &&
+        (selectedPiece.ignoreAttackBlock ||
+            !attackPathIsBlocked(selectedPiece, target)) &&
         players[currentPlayer].rp >=
         selectedPiece.rp &&
         selectedPiece.damage > 0
@@ -3248,7 +3537,8 @@ function handleCellClick(
 ) {
 
     if (
-        phase !== "battle"
+        phase !== "battle" ||
+        isAnimating
     ) {
 
         return;
@@ -3331,6 +3621,29 @@ function handleCellClick(
             d <=
             selectedPiece.range
         ) {
+
+            if (
+                selectedPiece.lineOnly &&
+                selectedPiece.x !== target.x &&
+                selectedPiece.y !== target.y
+            ) {
+                addLog(
+                    `${selectedPiece.name} 只能攻击所在的行或列`,
+                    currentPlayer
+                );
+                return;
+            }
+
+            if (
+                !selectedPiece.ignoreAttackBlock &&
+                attackPathIsBlocked(selectedPiece, target)
+            ) {
+                addLog(
+                    "攻击路径被敌方花瓣阻挡",
+                    currentPlayer
+                );
+                return;
+            }
 
             if (
                 selectedPiece.damage <= 0
@@ -3456,258 +3769,224 @@ function handleCellClick(
    移动
 ========================================================= */
 
-function movePiece(
-    piece,
-    x,
-    y
-) {
-    if (piece.immobile) {
-        return;
-    }
+function movePiece(piece, x, y) {
+    if (isAnimating || piece.immobile) return;
 
     const oldX = piece.x;
     const oldY = piece.y;
-
-    if (distance(piece, {x, y}) > MOVE_RANGE) {
-        addLog(
-            `移动距离不能超过 ${MOVE_RANGE} 格`,
-            currentPlayer
-        );
-        return;
-    }
-
+    if (distance(piece, {x, y}) > MOVE_RANGE) return;
     if (pathIsBlocked(piece, x, y)) {
-        addLog(
-            "移动路径存在花瓣阻挡",
-            currentPlayer
-        );
+        addLog("移动路径存在敌方花瓣阻挡", currentPlayer);
         return;
     }
-
     if (players[currentPlayer].rp < MOVE_COST) {
-        addLog(
-            "RP 不足，无法移动",
-            currentPlayer
-        );
+        addLog("RP 不足，无法移动", currentPlayer);
         return;
     }
 
-    const oldCell =
-        boardElement.querySelector(
-            `.cell[data-x="${oldX}"][data-y="${oldY}"]`
-        );
+    const oldCell = boardElement.querySelector(`.cell[data-x="${oldX}"][data-y="${oldY}"]`);
+    const targetCell = boardElement.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+    const pieceElement = oldCell ? oldCell.querySelector(".piece") : null;
+    if (!oldCell || !targetCell || !pieceElement) return;
 
-    const pieceElement =
-        oldCell
-        ? oldCell.querySelector(".piece")
-        : null;
-
-    /*
-       使用 FLIP 动画：
-       1. 先记录原花瓣的位置
-       2. 更新棋盘并 render 到目标格
-       3. 让目标格中的真实花瓣从“原位置”开始
-       4. 再恢复 transform，让浏览器自动平滑移动
-
-       这样不会再创建脱离棋盘的 ghost，也不会出现
-       花瓣先瞬移、随后克隆体漂到左上角的问题。
-    */
-    const oldRect =
-        pieceElement
-        ? pieceElement.getBoundingClientRect()
-        : null;
+    const oldRect = oldCell.getBoundingClientRect();
+    const targetRect = targetCell.getBoundingClientRect();
+    const dx = targetRect.left - oldRect.left;
+    const dy = targetRect.top - oldRect.top;
 
     players[currentPlayer].rp -= MOVE_COST;
-
-    board[oldY][oldX] = null;
-
-    piece.x = x;
-    piece.y = y;
-
-    board[y][x] = piece;
-
-    addLog(
-        `${playerNames[currentPlayer]} 的 ${piece.name} 移动了`,
-        currentPlayer
-    );
-
+    isAnimating = true;
     selectedPiece = piece;
-
-    render();
+    updatePlayerPanels();
     updateShopDisabled();
 
-    if (oldRect) {
-        const newCell =
-            boardElement.querySelector(
-                `.cell[data-x="${x}"][data-y="${y}"]`
-            );
+    const animation = pieceElement.animate(
+        [
+            { transform: "translate3d(0,0,0)" },
+            { transform: `translate3d(${dx}px,${dy}px,0)` }
+        ],
+        { duration: 330, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
+    );
 
-        const newPieceElement =
-            newCell
-            ? newCell.querySelector(".piece")
-            : null;
-
-        if (newPieceElement) {
-            const newRect =
-                newPieceElement.getBoundingClientRect();
-
-            const dx = oldRect.left - newRect.left;
-            const dy = oldRect.top - newRect.top;
-
-            newPieceElement.style.transition = "none";
-            newPieceElement.style.transform =
-                `translate3d(${dx}px, ${dy}px, 0)`;
-
-            /* 强制浏览器先应用起始位置，再开始过渡 */
-            newPieceElement.getBoundingClientRect();
-
-            requestAnimationFrame(() => {
-                newPieceElement.style.transition =
-                    "transform .32s cubic-bezier(.2,.8,.2,1)";
-                newPieceElement.style.transform =
-                    "translate3d(0, 0, 0)";
-            });
-
-            setTimeout(() => {
-                if (newPieceElement) {
-                    newPieceElement.style.transition = "";
-                    newPieceElement.style.transform = "";
-                }
-            }, 360);
-        }
-    }
+    animation.onfinish = () => {
+        board[oldY][oldX] = null;
+        piece.x = x;
+        piece.y = y;
+        board[y][x] = piece;
+        isAnimating = false;
+        addLog(`${playerNames[currentPlayer]} 的 ${piece.name} 移动了`, currentPlayer);
+        render();
+        updateShopDisabled();
+    };
 }
 
 /* =========================================================
    攻击
 ========================================================= */
 
-function attack(
-    attacker,
-    target
-) {
+function attack(attacker, target) {
+    if (isAnimating) return;
+
+    if (
+        attacker.lineOnly &&
+        attacker.x !== target.x &&
+        attacker.y !== target.y
+    ) {
+        addLog(`${attacker.name} 只能攻击所在的行或列`, currentPlayer);
+        return;
+    }
+
+    if (
+        !attacker.ignoreAttackBlock &&
+        attackPathIsBlocked(attacker, target)
+    ) {
+        addLog("攻击路径被敌方花瓣阻挡", currentPlayer);
+        return;
+    }
+    if (players[currentPlayer].rp < attacker.rp) {
+        addLog("RP 不足，无法攻击", currentPlayer);
+        return;
+    }
+
+    const attackerCell = boardElement.querySelector(`.cell[data-x="${attacker.x}"][data-y="${attacker.y}"]`);
+    const targetCell = boardElement.querySelector(`.cell[data-x="${target.x}"][data-y="${target.y}"]`);
+    const attackerElement = attackerCell ? attackerCell.querySelector(".piece") : null;
+    const targetElement = targetCell ? targetCell.querySelector(".piece") : null;
+    if (!attackerElement || !targetElement) return;
+
     players[currentPlayer].rp -= attacker.rp;
+    isAnimating = true;
 
-    const attackerElement =
-        findPieceElement(attacker.id);
-
-    const targetElement =
-        findPieceElement(target.id);
-
-    if (attackerElement) {
-        attackerElement.classList.add(
-            "attack-animation"
-        );
-    }
-
-    target.hp -= attacker.damage;
-
-    if (target.hp < 0) {
-        target.hp = 0;
-    }
-
-    addLog(
-        `${playerNames[currentPlayer]} 的 ${attacker.name} 攻击 ${target.name}，造成 ${attacker.damage} 点伤害`,
-        currentPlayer
-    );
-
-    /*
-       不立即 render，避免重建 DOM 把受击动画清掉。
-       直接同步当前目标的血条。
-    */
-    if (targetElement) {
-        const hpFill =
-            targetElement.querySelector(
-                ".piece-hp-fill"
-            );
-
-        if (hpFill) {
-            const percent =
-                Math.max(
-                    0,
-                    target.hp / target.maxHp * 100
-                );
-
-            hpFill.style.width =
-                percent + "%";
-
-            hpFill.classList.remove(
-                "low",
-                "critical"
-            );
-
-            if (percent <= 25) {
-                hpFill.classList.add("critical");
-            } else if (percent <= 50) {
-                hpFill.classList.add("low");
+    const chainTargets = [];
+    if (attacker.chainAttack) {
+        for (let y = 0; y < BOARD_SIZE; y++) {
+            for (let x = 0; x < BOARD_SIZE; x++) {
+                const candidate = board[y][x];
+                if (!candidate || candidate === target || candidate.player === attacker.player || candidate.isBase) continue;
+                const d = distance(target, candidate);
+                if (d >= 1 && d <= 3) {
+                    chainTargets.push({
+                        piece: candidate,
+                        damage: Math.floor(attacker.damage / Math.pow(2, d))
+                    });
+                }
             }
         }
-
-        targetElement.classList.remove(
-            "hit-shake",
-            "damage-flash"
-        );
-
-        void targetElement.offsetWidth;
-
-        targetElement.classList.add(
-            "hit-shake",
-            "damage-flash"
-        );
-
-        const damageNumber =
-            document.createElement("div");
-
-        damageNumber.className =
-            "damage-number";
-
-        damageNumber.textContent =
-            `-${attacker.damage}`;
-
-        targetElement.appendChild(
-            damageNumber
-        );
-
-        setTimeout(() => {
-            damageNumber.remove();
-        }, 760);
+        chainTargets.sort((a, b) => distance(target, a.piece) - distance(target, b.piece));
     }
 
+    target.hp = Math.max(0, target.hp - attacker.damage);
+    addLog(`${playerNames[currentPlayer]} 的 ${attacker.name} 攻击 ${target.name}，造成 ${attacker.damage} 点伤害`, currentPlayer);
+
+    const primaryHpFill = targetElement.querySelector(".piece-hp-fill");
+    if (primaryHpFill) {
+        const percent = Math.max(0, target.hp / target.maxHp * 100);
+        primaryHpFill.style.width = percent + "%";
+        primaryHpFill.classList.remove("low", "critical");
+        if (percent <= 25) primaryHpFill.classList.add("critical");
+        else if (percent <= 50) primaryHpFill.classList.add("low");
+    }
+
+    targetElement.classList.remove("hit-shake", "damage-flash");
+    void targetElement.offsetWidth;
+    targetElement.classList.add("hit-shake", "damage-flash");
+
+    const damageNumber = document.createElement("div");
+    damageNumber.className = "damage-number";
+    damageNumber.textContent = `-${attacker.damage}`;
+    targetElement.appendChild(damageNumber);
+    setTimeout(() => damageNumber.remove(), 760);
     updatePlayerPanels();
 
-    if (target.hp <= 0) {
-        if (target.isBase) {
-            addLog(
-                `${playerNames[target.player]} 的花朵被摧毁！`,
-                currentPlayer
-            );
+    /* 电池传导：距离 1/2/3 分别为完整伤害的 1/2、1/4、1/8，均向下取整。 */
+    chainTargets.forEach((item, index) => {
+        const delay = 100 * (index + 1);
+        setTimeout(() => {
+            if (item.piece.hp <= 0) return;
+            item.piece.hp = Math.max(0, item.piece.hp - item.damage);
+            addLog(`${attacker.name} 的电击传导至 ${item.piece.name}，造成 ${item.damage} 点伤害`, currentPlayer);
+            const cell = boardElement.querySelector(`.cell[data-x="${item.piece.x}"][data-y="${item.piece.y}"]`);
+            const element = cell ? cell.querySelector(".piece") : null;
+            if (element) {
+                const hpFill = element.querySelector(".piece-hp-fill");
+                if (hpFill) {
+                    const percent = Math.max(0, item.piece.hp / item.piece.maxHp * 100);
+                    hpFill.style.width = percent + "%";
+                    hpFill.classList.remove("low", "critical");
+                    if (percent <= 25) hpFill.classList.add("critical");
+                    else if (percent <= 50) hpFill.classList.add("low");
+                }
+                element.classList.remove("hit-shake", "damage-flash");
+                void element.offsetWidth;
+                element.classList.add("hit-shake", "damage-flash");
+                const num = document.createElement("div");
+                num.className = "damage-number";
+                num.textContent = `-${item.damage}`;
+                element.appendChild(num);
+                setTimeout(() => num.remove(), 760);
+            }
+            updatePlayerPanels();
+        }, delay);
+    });
 
-            setTimeout(() => {
-                gameOver(currentPlayer);
-            }, 420);
+    const attackerRect = attackerCell.getBoundingClientRect();
+    const targetRect = targetCell.getBoundingClientRect();
+    const dx = targetRect.left - attackerRect.left;
+    const dy = targetRect.top - attackerRect.top;
+    const dead = target.hp <= 0;
 
+    const keyframes = dead
+        ? [
+            { transform: "translate3d(0,0,0)" },
+            { transform: `translate3d(${dx}px,${dy}px,0)` }
+          ]
+        : [
+            { transform: "translate3d(0,0,0)" },
+            { transform: `translate3d(${dx}px,${dy}px,0)` },
+            { transform: `translate3d(${dx * 0.18}px,${dy * 0.18}px,0)` },
+            { transform: "translate3d(0,0,0)" }
+          ];
+
+    const animation = attackerElement.animate(
+        keyframes,
+        { duration: dead ? 300 : 360, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
+    );
+
+    animation.onfinish = () => {
+        if (target.isBase && dead) {
+            isAnimating = false;
+            updateShopDisabled();
+            gameOver(currentPlayer);
             return;
         }
 
-        if (targetElement) {
-            targetElement.classList.add(
-                "death-animation"
-            );
+        if (dead) {
+            board[target.y][target.x] = null;
+            board[attacker.y][attacker.x] = null;
+            attacker.x = target.x;
+            attacker.y = target.y;
+            board[attacker.y][attacker.x] = attacker;
         }
 
-        board[target.y][target.x] = null;
+        selectedPiece = attacker;
+        render();
+        updateShopDisabled();
 
-        setTimeout(() => {
-            render();
-        }, 300);
-    } else {
-        setTimeout(() => {
-            render();
-        }, 300);
-    }
-
-    selectedPiece = attacker;
-    updateShopDisabled();
+        if (chainTargets.length) {
+            setTimeout(() => {
+                for (const item of chainTargets) {
+                    if (item.piece.hp <= 0 && board[item.piece.y] && board[item.piece.y][item.piece.x] === item.piece) {
+                        board[item.piece.y][item.piece.x] = null;
+                    }
+                }
+                isAnimating = false;
+                render();
+                updateShopDisabled();
+            }, 100 * chainTargets.length + 80);
+        } else {
+            isAnimating = false;
+        }
+    };
 }
 
 /* =========================================================
@@ -3859,7 +4138,7 @@ function startBattle() {
 
 
     addLog(
-        "双方部署完成，战斗开始！",
+        "双方部署完成，滚木博弈开始！",
         0
     );
 
@@ -3928,93 +4207,25 @@ document
    玩家信息
 ========================================================= */
 
-function updatePlayerPanels() {
-
-    document.getElementById(
-        "left-stars"
-    ).textContent =
-        players[1].stars;
-
-
-    document.getElementById(
-        "right-stars"
-    ).textContent =
-        players[2].stars;
-
-
-    document.getElementById(
-        "left-rp"
-    ).textContent =
-        players[1].rp;
-
-
-    document.getElementById(
-        "right-rp"
-    ).textContent =
-        players[2].rp;
-
-
-    const leftBase =
-        findBase(1);
-
-
-    const rightBase =
-        findBase(2);
-
-
-    document.getElementById(
-        "left-hp"
-    ).textContent =
-        leftBase
-        ? leftBase.hp
-        : 0;
-
-
-    document.getElementById(
-        "right-hp"
-    ).textContent =
-        rightBase
-        ? rightBase.hp
-        : 0;
-
-
-    document.getElementById(
-        "left-player-panel"
-    ).classList.toggle(
-        "active",
-        phase === "battle" &&
-        currentPlayer === 1
-    );
-
-
-    document.getElementById(
-        "right-player-panel"
-    ).classList.toggle(
-        "active",
-        phase === "battle" &&
-        currentPlayer === 2
-    );
-
-
-    document.getElementById(
-        "left-turn"
-    ).textContent =
-        phase === "battle" &&
-        currentPlayer === 1
-        ? "● 当前回合"
-        : "";
-
-
-    document.getElementById(
-        "right-turn"
-    ).textContent =
-        phase === "battle" &&
-        currentPlayer === 2
-        ? "● 当前回合"
-        : "";
-
+function setResourceBar(id, value, max) {
+    const el = document.getElementById(id);
+    if (el) el.style.width = Math.max(0, Math.min(100, value / max * 100)) + "%";
 }
 
+function updatePlayerPanels() {
+    const leftBase = findBase(1);
+    const rightBase = findBase(2);
+    setResourceBar("left-hp-fill", leftBase ? leftBase.hp : 0, 100);
+    setResourceBar("right-hp-fill", rightBase ? rightBase.hp : 0, 100);
+    setResourceBar("left-stars-fill", players[1].stars, 100);
+    setResourceBar("right-stars-fill", players[2].stars, 100);
+    setResourceBar("left-rp-fill", players[1].rp, MAX_RP);
+    setResourceBar("right-rp-fill", players[2].rp, MAX_RP);
+    document.getElementById("left-player-panel").classList.toggle("active", phase === "battle" && currentPlayer === 1);
+    document.getElementById("right-player-panel").classList.toggle("active", phase === "battle" && currentPlayer === 2);
+    document.getElementById("left-turn").textContent = phase === "battle" && currentPlayer === 1 ? "● 当前回合" : "";
+    document.getElementById("right-turn").textContent = phase === "battle" && currentPlayer === 2 ? "● 当前回合" : "";
+}
 
 /* =========================================================
    找花朵
@@ -4149,7 +4360,7 @@ function gameOver(winner) {
     document.getElementById(
         "game-over-title"
     ).textContent =
-        `${playerNames[winner]} 获胜！`;
+        `${playerNames[winner]} 获胜！滚木万岁！`;
 
 
     document.getElementById(
