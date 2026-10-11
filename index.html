@@ -876,6 +876,14 @@ input {
 }
 
 
+
+.resource-bar { position: relative; }
+.resource-value { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#222; font-size:10px; font-weight:700; text-shadow:0 0 2px rgba(255,255,255,.9); pointer-events:none; white-space:nowrap; z-index:2; }
+.deploy-preview { position:absolute; inset:8%; width:84%; height:84%; object-fit:contain; opacity:.38; pointer-events:none; z-index:4; filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
+.shop-card.deploy-selected { outline:3px solid #f2c94c; box-shadow:0 0 0 3px rgba(242,201,76,.22); }
+.log-toast { position:absolute; top:48px; left:50%; transform:translateX(-50%); max-width:min(78%,600px); padding:9px 16px; border-radius:18px; background:rgba(25,30,38,.88); color:#fff; font-size:13px; text-align:center; z-index:100; pointer-events:none; opacity:0; transition:opacity .2s ease; }
+.log-toast.show { opacity:1; }
+
 /* =========================================================
    战斗日志
 ========================================================= */
@@ -1325,7 +1333,6 @@ input {
             class="about-content"
             id="about-content"
         >炎炎夏日，肥美的Cod在学校发明了一种叫“南极庭院“的棋类游戏和他的好基友Andrew玩，后来乐不思蜀了，决定改造成florr二创游戏
-            。。。本游戏于26年国庆正式开始开发（以前有一些规划），目前联机功能尚未测试，玩法有限，仅内测，勿外传。
     </div>
     </div>
 </div>
@@ -1381,7 +1388,7 @@ input {
 
     <!-- 游戏区域 -->
 
-    <div class="game-area">
+    <div class="game-area">\n        <div id="log-toast" class="log-toast" aria-live="polite"></div>
 
 
         <div
@@ -1407,9 +1414,9 @@ input {
             </div>
 
             <div class="resource-bars">
-                <div class="resource-row"><span class="resource-label">HP</span><div class="resource-bar hp-bar"><div id="left-hp-fill" class="resource-fill"></div></div></div>
-                <div class="resource-row"><span class="resource-label">Stars</span><div class="resource-bar stars-bar"><div id="left-stars-fill" class="resource-fill"></div></div></div>
-                <div class="resource-row"><span class="resource-label">RP</span><div class="resource-bar rp-bar"><div id="left-rp-fill" class="resource-fill"></div></div></div>
+                <div class="resource-row"><span class="resource-label">HP</span><div class="resource-bar hp-bar"><div id="left-hp-fill" class="resource-fill"></div><span class="resource-value" id="left-hp-value">0/100</span></div></div>
+                <div class="resource-row"><span class="resource-label">Stars</span><div class="resource-bar stars-bar"><div id="left-stars-fill" class="resource-fill"></div><span class="resource-value" id="left-stars-value">0/200</span></div></div>
+                <div class="resource-row"><span class="resource-label">RP</span><div class="resource-bar rp-bar"><div id="left-rp-fill" class="resource-fill"></div><span class="resource-value" id="left-rp-value">0/10</span></div></div>
             </div>
 
             <div
@@ -1435,9 +1442,9 @@ input {
             </div>
 
             <div class="resource-bars">
-                <div class="resource-row"><span class="resource-label">HP</span><div class="resource-bar hp-bar"><div id="right-hp-fill" class="resource-fill"></div></div></div>
-                <div class="resource-row"><span class="resource-label">Stars</span><div class="resource-bar stars-bar"><div id="right-stars-fill" class="resource-fill"></div></div></div>
-                <div class="resource-row"><span class="resource-label">RP</span><div class="resource-bar rp-bar"><div id="right-rp-fill" class="resource-fill"></div></div></div>
+                <div class="resource-row"><span class="resource-label">HP</span><div class="resource-bar hp-bar"><div id="right-hp-fill" class="resource-fill"></div><span class="resource-value" id="right-hp-value">0/100</span></div></div>
+                <div class="resource-row"><span class="resource-label">Stars</span><div class="resource-bar stars-bar"><div id="right-stars-fill" class="resource-fill"></div><span class="resource-value" id="right-stars-value">0/200</span></div></div>
+                <div class="resource-row"><span class="resource-label">RP</span><div class="resource-bar rp-bar"><div id="right-rp-fill" class="resource-fill"></div><span class="resource-value" id="right-rp-value">0/10</span></div></div>
             </div>
 
             <div
@@ -1584,13 +1591,13 @@ const PIECES = [
         image:
         "images/missile.webp",
 
-        price: 6,
+        price: 9,
 
         damage: 10,
 
         hp: 20,
 
-        range: 10,
+        range: 7,
 
         rp: 2,
 
@@ -1728,7 +1735,7 @@ const PIECES = [
 
         price: 15,
 
-        damage: 12,
+        damage: 4,
 
         hp: 40,
 
@@ -1755,7 +1762,7 @@ const PIECES = [
 
         damage: 0,
 
-        hp: 100,
+        hp: 85,
 
         range: 0,
 
@@ -1814,6 +1821,7 @@ let currentPlayer = 1;
 let phase = "home";
 
 let selectedPiece = null;
+let selectedDeploymentPiece = null;
 
 let nextPieceId = 1;
 
@@ -2100,7 +2108,7 @@ function createShop() {
         card.className =
             "shop-card";
 
-        card.draggable = true;
+        card.draggable = false;
 
         card.dataset.pieceId =
             piece.id;
@@ -2163,7 +2171,7 @@ function createShop() {
                     phase === "deployment"
                 ) {
 
-                    buyAndPlace(piece);
+                    selectDeploymentPiece(piece, card);
 
                 }
                 else if (
@@ -2173,25 +2181,6 @@ function createShop() {
                     buyDuringBattle(piece);
 
                 }
-
-            }
-        );
-
-
-        /*
-           拖动
-        */
-
-        card.addEventListener(
-            "dragstart",
-            e => {
-
-                e.dataTransfer.setData(
-                    "pieceId",
-                    piece.id
-                );
-
-                hidePieceTooltip();
 
             }
         );
@@ -2725,6 +2714,15 @@ function placePiece(
    购买
 ========================================================= */
 
+function selectDeploymentPiece(piece, card) {
+    if (phase !== "deployment") return;
+    selectedDeploymentPiece = piece;
+    document.querySelectorAll(".shop-card").forEach(el => el.classList.remove("deploy-selected"));
+    if (card) card.classList.add("deploy-selected");
+    addLog(`已选择 ${piece.name}，请点击己方区域的空格部署`, currentPlayer);
+    render();
+}
+
 function buyAndPlace(piece) {
 
     if (
@@ -2788,6 +2786,12 @@ function buyAndPlace(piece) {
 
 function buyDuringBattle(piece) {
 
+    const deploymentRpCost = 5;
+    if (players[currentPlayer].rp < deploymentRpCost) {
+        addLog(`RP 不足，战斗中购买花瓣需要 ${deploymentRpCost} RP`, currentPlayer);
+        return;
+    }
+
     if (
         players[currentPlayer].stars <
         piece.price
@@ -2825,6 +2829,7 @@ function buyDuringBattle(piece) {
         .stars -=
         piece.price;
 
+    players[currentPlayer].rp -= deploymentRpCost;
 
     placePiece(
         piece,
@@ -2835,7 +2840,7 @@ function buyDuringBattle(piece) {
 
 
     addLog(
-        `${playerNames[currentPlayer]} 在战斗中购买了 ${piece.name} 花瓣`,
+        `${playerNames[currentPlayer]} 在战斗中花费 ${deploymentRpCost} RP 购买了 ${piece.name} 花瓣`,
         currentPlayer
     );
 
@@ -2848,208 +2853,26 @@ function buyDuringBattle(piece) {
 
 
 /* =========================================================
-   拖放部署
+   点击网格部署（替代拖放）
 ========================================================= */
 
-boardElement.addEventListener(
-    "dragover",
-    e => {
-
-        if (
-            phase !== "deployment" &&
-            phase !== "battle"
-        ) {
-
-            return;
-
-        }
-
-        e.preventDefault();
-
-    }
-);
-
-
-boardElement.addEventListener(
-    "drop",
-    e => {
-
-        if (
-            phase !== "deployment" &&
-            phase !== "battle"
-        ) {
-
-            return;
-
-        }
-
-
-        e.preventDefault();
-
-
-        const pieceId =
-            e.dataTransfer.getData(
-                "pieceId"
-            );
-
-
-        const piece =
-            PIECES.find(
-                p =>
-                    p.id === pieceId
-            );
-
-
-        if (!piece) return;
-
-
-        const rect =
-            boardElement.getBoundingClientRect();
-
-
-        const cellWidth =
-            rect.width /
-            BOARD_SIZE;
-
-
-        const cellHeight =
-            rect.height /
-            BOARD_SIZE;
-
-
-        const x =
-            Math.floor(
-                (
-                    e.clientX -
-                    rect.left
-                ) /
-                cellWidth
-            );
-
-
-        const y =
-            Math.floor(
-                (
-                    e.clientY -
-                    rect.top
-                ) /
-                cellHeight
-            );
-
-
-        if (
-            x < 0 ||
-            x >= BOARD_SIZE ||
-            y < 0 ||
-            y >= BOARD_SIZE
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            !isOwnDeploymentCell(
-                x,
-                y
-            )
-        ) {
-
-            addLog(
-                "只能将花瓣部署在自己的区域",
-                currentPlayer
-            );
-
-            return;
-
-        }
-
-
-        if (
-            board[y][x]
-        ) {
-
-            addLog(
-                "该格已经有花瓣",
-                currentPlayer
-            );
-
-            return;
-
-        }
-
-
-        if (
-            players[currentPlayer].stars <
-            piece.price
-        ) {
-
-            addLog(
-                "Stars 不足",
-                currentPlayer
-            );
-
-            return;
-
-        }
-
-
-        players[currentPlayer]
-            .stars -=
-            piece.price;
-
-
-        placePiece(
-            piece,
-            currentPlayer,
-            x,
-            y
-        );
-
-
-        addLog(
-            `${playerNames[currentPlayer]} 部署了 ${piece.name} 花瓣`,
-            currentPlayer
-        );
-
-
-        render();
-
-        updateShopDisabled();
-
-    }
-);
-
-
-/* =========================================================
-   部署区域
-========================================================= */
-
-function isOwnDeploymentCell(
-    x,
-    y
-) {
-
-    if (
-        currentPlayer === 1
-    ) {
-
-        return (
-            x <
-            BOARD_SIZE / 2
-        );
-
-    }
-
-
-    return (
-        x >=
-        BOARD_SIZE / 2
-    );
-
-}
-
+boardElement.addEventListener("mousemove", e => {
+    if (phase !== "deployment" || !selectedDeploymentPiece) return;
+    const cell = e.target.closest(".cell");
+    if (!cell || !boardElement.contains(cell)) return;
+    const x = Number(cell.dataset.x), y = Number(cell.dataset.y);
+    boardElement.querySelectorAll(".deploy-preview").forEach(el => el.remove());
+    if (!isOwnDeploymentCell(x, y) || board[y][x]) return;
+    const preview = document.createElement("img");
+    preview.className = "deploy-preview";
+    preview.src = selectedDeploymentPiece.image;
+    preview.alt = selectedDeploymentPiece.name;
+    cell.appendChild(preview);
+});
+
+boardElement.addEventListener("mouseleave", () => {
+    boardElement.querySelectorAll(".deploy-preview").forEach(el => el.remove());
+});
 
 /* =========================================================
    Render
@@ -3537,18 +3360,34 @@ function handleCellClick(
     y
 ) {
 
-    if (
-        phase !== "battle" ||
-        isAnimating
-    ) {
-
+    if (phase === "deployment") {
+        if (!selectedDeploymentPiece || isAnimating) return;
+        if (!isOwnDeploymentCell(x, y)) {
+            addLog("只能将花瓣部署在自己的区域", currentPlayer);
+            return;
+        }
+        if (board[y][x]) {
+            addLog("此格已有花瓣，请选择空格", currentPlayer);
+            return;
+        }
+        const piece = selectedDeploymentPiece;
+        if (players[currentPlayer].stars < piece.price) {
+            addLog(`${playerNames[currentPlayer]} 的 Stars 不足，无法购买 ${piece.name}`, currentPlayer);
+            return;
+        }
+        players[currentPlayer].stars -= piece.price;
+        placePiece(piece, currentPlayer, x, y);
+        addLog(`${playerNames[currentPlayer]} 部署了 ${piece.name}`, currentPlayer);
+        selectedDeploymentPiece = null;
+        document.querySelectorAll(".shop-card").forEach(el => el.classList.remove("deploy-selected"));
+        render();
+        updateShopDisabled();
         return;
-
     }
 
+    if (phase !== "battle" || isAnimating) return;
 
-    const target =
-        board[y][x];
+    const target = board[y][x];
 
 
     /*
@@ -3569,11 +3408,6 @@ function handleCellClick(
 
             render();
 
-
-            addLog(
-                `${playerNames[currentPlayer]} 选中了 ${target.name}`,
-                currentPlayer
-            );
 
         }
 
@@ -3936,7 +3770,8 @@ function attack(attacker, target) {
     const dy = targetRect.top - attackerRect.top;
     const dead = target.hp <= 0;
 
-    const keyframes = dead
+    const leapOnKill = dead && attacker.range <= 2;
+    const keyframes = leapOnKill
         ? [
             { transform: "translate3d(0,0,0)" },
             { transform: `translate3d(${dx}px,${dy}px,0)` }
@@ -3950,7 +3785,7 @@ function attack(attacker, target) {
 
     const animation = attackerElement.animate(
         keyframes,
-        { duration: dead ? 300 : 360, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
+        { duration: leapOnKill ? 300 : 360, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
     );
 
     animation.onfinish = () => {
@@ -3963,10 +3798,12 @@ function attack(attacker, target) {
 
         if (dead) {
             board[target.y][target.x] = null;
-            board[attacker.y][attacker.x] = null;
-            attacker.x = target.x;
-            attacker.y = target.y;
-            board[attacker.y][attacker.x] = attacker;
+            if (attacker.range <= 2) {
+                board[attacker.y][attacker.x] = null;
+                attacker.x = target.x;
+                attacker.y = target.y;
+                board[attacker.y][attacker.x] = attacker;
+            }
         }
 
         selectedPiece = attacker;
@@ -4211,6 +4048,8 @@ document
 function setResourceBar(id, value, max) {
     const el = document.getElementById(id);
     if (el) el.style.width = Math.max(0, Math.min(100, value / max * 100)) + "%";
+    const valueEl = document.getElementById(id.replace("-fill", "-value"));
+    if (valueEl) valueEl.textContent = `${Math.max(0, Math.ceil(value))}/${max}`;
 }
 
 function updatePlayerPanels() {
@@ -4333,13 +4172,16 @@ function addLog(
         `[${time}] ${text}`;
 
 
-    log.appendChild(
-        entry
-    );
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
 
-
-    log.scrollTop =
-        log.scrollHeight;
+    const toast = document.getElementById("log-toast");
+    if (toast) {
+        toast.textContent = text;
+        toast.classList.add("show");
+        clearTimeout(window.__logToastTimer);
+        window.__logToastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+    }
 
 }
 
