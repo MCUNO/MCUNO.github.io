@@ -1949,12 +1949,12 @@ function startGame() {
 
 
     players[1] = {
-        stars: 100,
+        stars: 300,
         rp: MAX_RP
     };
 
     players[2] = {
-        stars: 100,
+        stars: 300,
         rp: MAX_RP
     };
 
@@ -4148,8 +4148,8 @@ function updatePlayerPanels() {
     const rightBase = findBase(2);
     setResourceBar("left-hp-fill", leftBase ? leftBase.hp : 0, 100);
     setResourceBar("right-hp-fill", rightBase ? rightBase.hp : 0, 100);
-    setResourceBar("left-stars-fill", players[1].stars, 100);
-    setResourceBar("right-stars-fill", players[2].stars, 100);
+    setResourceBar("left-stars-fill", players[1].stars, 200);
+    setResourceBar("right-stars-fill", players[2].stars, 200);
     setResourceBar("left-rp-fill", players[1].rp, MAX_RP);
     setResourceBar("right-rp-fill", players[2].rp, MAX_RP);
     document.getElementById("left-player-panel").classList.toggle("active", phase === "battle" && currentPlayer === 1);
