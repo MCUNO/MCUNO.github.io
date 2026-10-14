@@ -1360,7 +1360,7 @@ input {
             </div>
 
             <div class="shop-tip">
-                悬停查看属性 · 拖动部署
+                悬停查看属性 · 点击花瓣，再点击己方空格部署
             </div>
 
         </div>
@@ -1832,12 +1832,12 @@ let deploymentFinished = {
 
 let players = {
     1: {
-        stars: 200,
+        stars: 300,
         rp: MAX_RP
     },
 
     2: {
-        stars: 200,
+        stars: 300,
         rp: MAX_RP
     }
 };
@@ -2178,9 +2178,7 @@ function createShop() {
                 else if (
                     phase === "battle"
                 ) {
-
-                    buyDuringBattle(piece);
-
+                    selectBattlePurchase(piece, card);
                 }
 
             }
@@ -2783,6 +2781,26 @@ function buyAndPlace(piece) {
 }
 
 
+function selectBattlePurchase(piece, card) {
+    const deploymentRpCost = 5;
+    if (players[currentPlayer].rp < deploymentRpCost) {
+        addLog(`RP 不足，战斗中购买花瓣需要 ${deploymentRpCost} RP`, currentPlayer);
+        return;
+    }
+    if (players[currentPlayer].stars < piece.price) {
+        addLog(`${playerNames[currentPlayer]} 的 Stars 不足，无法购买 ${piece.name}`, currentPlayer);
+        return;
+    }
+
+    selectedDeploymentPiece = piece;
+    selectedPiece = null;
+    document.querySelectorAll(".shop-card").forEach(el => el.classList.remove("deploy-selected"));
+    if (card) card.classList.add("deploy-selected");
+    addLog(`已选择 ${piece.name}，请点击己方半区的空格确认购买和部署（${piece.price} Stars + 5 RP）`, currentPlayer);
+    render();
+    updateShopDisabled();
+}
+
 function buyDuringBattle(piece) {
 
     const deploymentRpCost = 5;
@@ -2877,7 +2895,7 @@ function isOwnDeploymentCell(x, y) {
 ========================================================= */
 
 boardElement.addEventListener("mousemove", e => {
-    if (phase !== "deployment" || !selectedDeploymentPiece) return;
+    if ((phase !== "deployment" && phase !== "battle") || !selectedDeploymentPiece) return;
     const cell = e.target.closest(".cell");
     if (!cell || !boardElement.contains(cell)) return;
     const x = Number(cell.dataset.x), y = Number(cell.dataset.y);
@@ -3425,6 +3443,40 @@ function handleCellClick(
     }
 
     if (phase !== "battle" || isAnimating) return;
+
+    // 战斗阶段先选商店花瓣，再点击己方半区空格确认购买与部署。
+    if (selectedDeploymentPiece) {
+        const piece = selectedDeploymentPiece;
+        const deploymentRpCost = 5;
+
+        if (!isOwnDeploymentCell(x, y)) {
+            addLog("只能在自己的半区部署花瓣", currentPlayer);
+            return;
+        }
+        if (board[y][x]) {
+            addLog("此格已有花瓣，请选择己方空格", currentPlayer);
+            return;
+        }
+        if (players[currentPlayer].rp < deploymentRpCost) {
+            addLog(`RP 不足，战斗中购买花瓣需要 ${deploymentRpCost} RP`, currentPlayer);
+            return;
+        }
+        if (players[currentPlayer].stars < piece.price) {
+            addLog(`${playerNames[currentPlayer]} 的 Stars 不足，无法购买 ${piece.name}`, currentPlayer);
+            return;
+        }
+
+        players[currentPlayer].stars -= piece.price;
+        players[currentPlayer].rp -= deploymentRpCost;
+        placePiece(piece, currentPlayer, x, y);
+        addLog(`${playerNames[currentPlayer]} 花费 ${piece.price} Stars 和 ${deploymentRpCost} RP，在指定位置部署了 ${piece.name}`, currentPlayer);
+        selectedDeploymentPiece = null;
+        document.querySelectorAll(".shop-card").forEach(el => el.classList.remove("deploy-selected"));
+        selectedPiece = null;
+        render();
+        updateShopDisabled();
+        return;
+    }
 
     const target = board[y][x];
 
