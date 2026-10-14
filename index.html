@@ -609,7 +609,7 @@ input {
 .resource-bars { display:flex; flex-direction:column; gap:5px; }
 .resource-row { display:flex; align-items:center; gap:6px; }
 .resource-label { width:38px; flex:0 0 38px; font-size:10px; color:#888; }
-.resource-bar { flex:1; height:7px; background:rgba(0,0,0,.10); border-radius:5px; overflow:hidden; }
+.resource-bar { flex:1; height:10px; background:rgba(0,0,0,.10); border-radius:5px; overflow:hidden; }
 .resource-fill { width:100%; height:100%; border-radius:inherit; transition:width .22s ease, background .22s ease; }
 .hp-bar .resource-fill { background:#e35d5d; }
 .stars-bar .resource-fill { background:#e3b72f; }
@@ -1964,6 +1964,7 @@ function startGame() {
     phase = "deployment";
 
     selectedPiece = null;
+    selectedDeploymentPiece = null;
 
     nextPieceId = 1;
 
@@ -2386,18 +2387,15 @@ function updateShopDisabled() {
             );
 
 
-        if (
-            players[currentPlayer].stars <
-            piece.price
-        ) {
+        const cannotAffordStars =
+            players[currentPlayer].stars < piece.price;
+        const cannotAffordBattleRP =
+            phase === "battle" && players[currentPlayer].rp < 5;
 
+        if (cannotAffordStars || cannotAffordBattleRP) {
             card.classList.add("disabled");
-
-        }
-        else {
-
+        } else {
             card.classList.remove("disabled");
-
         }
 
     });
@@ -2720,6 +2718,7 @@ function selectDeploymentPiece(piece, card) {
     document.querySelectorAll(".shop-card").forEach(el => el.classList.remove("deploy-selected"));
     if (card) card.classList.add("deploy-selected");
     addLog(`已选择 ${piece.name}，请点击己方区域的空格部署`, currentPlayer);
+    updateShopDisabled();
     render();
 }
 
@@ -2851,6 +2850,27 @@ function buyDuringBattle(piece) {
 
 }
 
+
+
+/* =========================================================
+   部署区域判定
+   玩家 1 使用棋盘左半区，玩家 2 使用棋盘右半区。
+========================================================= */
+function isOwnDeploymentCell(x, y) {
+    if (
+        !Number.isInteger(x) ||
+        !Number.isInteger(y) ||
+        x < 0 || x >= BOARD_SIZE ||
+        y < 0 || y >= BOARD_SIZE
+    ) {
+        return false;
+    }
+
+    const middle = Math.floor(BOARD_SIZE / 2);
+    return currentPlayer === 1
+        ? x < middle
+        : x >= middle;
+}
 
 /* =========================================================
    点击网格部署（替代拖放）
@@ -3354,6 +3374,25 @@ function updateHoverPreview(
 /* =========================================================
    点击格子
 ========================================================= */
+
+// 部署阶段统一在棋盘捕获点击事件，避免格子内部元素导致部署点击失效。
+boardElement.addEventListener("click", event => {
+    if (phase !== "deployment") return;
+
+    const cell = event.target.closest(".cell");
+    if (!cell || !boardElement.contains(cell)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const x = Number(cell.dataset.x);
+    const y = Number(cell.dataset.y);
+    if (!Number.isInteger(x) || !Number.isInteger(y)) return;
+
+    handleCellClick(x, y);
+}, true);
+
 
 function handleCellClick(
     x,
