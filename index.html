@@ -1556,6 +1556,8 @@ input {
    花瓣资料
 ========================================================= */
 
+const INITIAL_STARS = 200; // 双方初始 Stars，同时作为 Stars 条上限
+
 const PIECES = [
 
     {
@@ -1591,7 +1593,7 @@ const PIECES = [
         image:
         "images/missile.webp",
 
-        price: 9,
+        price: 13,
 
         damage: 10,
 
@@ -1662,7 +1664,7 @@ const PIECES = [
         image:
         "images/dust.webp",
 
-        price: 10,
+        price: 14,
 
         damage: 5,
 
@@ -1735,7 +1737,7 @@ const PIECES = [
 
         price: 15,
 
-        damage: 4,
+        damage: 6,
 
         hp: 40,
 
@@ -1744,6 +1746,54 @@ const PIECES = [
         rp: 2,
 
         chainAttack: true
+
+    },
+
+
+    {
+        id: "uranium",
+
+        name: "铀",
+
+        description: "每当己方回合结束，自动对 3 格内所有敌方花瓣造成 3 点毒伤；同一回合内毒伤不可叠加。",
+
+        image: "images/uranium.webp",
+
+        price: 16,
+
+        damage: 3,
+
+        hp: 25,
+
+        range: 3,
+
+        rp: 0,
+
+        endTurnPoison: true
+
+    },
+
+
+    {
+        id: "mon",
+
+        name: "龟背竹",
+
+        description: "每当己方回合结束，自动恢复 3 格内所有己方花瓣 3 点生命；同一回合内治疗不可叠加。",
+
+        image: "images/mon.webp",
+
+        price: 14,
+
+        damage: 0,
+
+        hp: 35,
+
+        range: 3,
+
+        rp: 0,
+
+        endTurnHeal: true
 
     },
 
@@ -1832,12 +1882,12 @@ let deploymentFinished = {
 
 let players = {
     1: {
-        stars: 300,
+        stars: INITIAL_STARS,
         rp: MAX_RP
     },
 
     2: {
-        stars: 300,
+        stars: INITIAL_STARS,
         rp: MAX_RP
     }
 };
@@ -1949,12 +1999,12 @@ function startGame() {
 
 
     players[1] = {
-        stars: 300,
+        stars: INITIAL_STARS,
         rp: MAX_RP
     };
 
     players[2] = {
-        stars: 300,
+        stars: INITIAL_STARS,
         rp: MAX_RP
     };
 
@@ -4086,6 +4136,76 @@ function startBattle() {
 
 
 /* =========================================================
+   回合结束自动效果：铀毒伤、龟背竹治疗
+========================================================= */
+function resolveEndTurnEffects(player) {
+    const enemy = player === 1 ? 2 : 1;
+    const units = [];
+
+    for (let y = 0; y < BOARD_SIZE; y++) {
+        for (let x = 0; x < BOARD_SIZE; x++) {
+            const unit = board[y][x];
+            if (unit && !unit.isBase) units.push(unit);
+        }
+    }
+
+    const uraniumUnits = units.filter(unit => unit.player === player && unit.type === "uranium");
+    const monUnits = units.filter(unit => unit.player === player && unit.type === "mon");
+
+    // 每个敌方单位每次回合结束最多受到一次 3 点铀毒伤。
+    const poisoned = new Set();
+    for (const uranium of uraniumUnits) {
+        for (const target of units) {
+            if (target.player !== enemy || target.isBase) continue;
+            if (distance(uranium, target) <= 3 && !poisoned.has(target.id)) {
+                poisoned.add(target.id);
+                target.hp -= 3;
+                addLog(`${playerNames[player]} 的铀对 ${target.name} 造成 3 点毒伤`, player);
+            }
+        }
+    }
+
+    // 每个己方单位每次回合结束最多被龟背竹治疗一次 3 点。
+    const healed = new Set();
+    for (const mon of monUnits) {
+        for (const target of units) {
+            if (target.player !== player || target.isBase) continue;
+            if (distance(mon, target) <= 3 && target.hp < target.maxHp && !healed.has(target.id)) {
+                healed.add(target.id);
+                const before = target.hp;
+                target.hp = Math.min(target.maxHp, target.hp + 3);
+                const actual = target.hp - before;
+                if (actual > 0) addLog(`${playerNames[player]} 的龟背竹为 ${target.name} 恢复 ${actual} 点生命`, player);
+            }
+        }
+    }
+
+    // 清除死亡单位，避免死亡单位继续占格或参与后续效果。
+    for (let y = 0; y < BOARD_SIZE; y++) {
+        for (let x = 0; x < BOARD_SIZE; x++) {
+            const unit = board[y][x];
+            if (unit && !unit.isBase && unit.hp <= 0) {
+                addLog(`${unit.name} 被毒伤击败`, unit.player);
+                board[y][x] = null;
+            }
+        }
+    }
+
+    const base1 = findBase(1);
+    const base2 = findBase(2);
+    if (base1 && base1.hp <= 0) {
+        gameOver(2);
+        return false;
+    }
+    if (base2 && base2.hp <= 0) {
+        gameOver(1);
+        return false;
+    }
+    return true;
+}
+
+
+/* =========================================================
    结束回合
 ========================================================= */
 
@@ -4107,6 +4227,11 @@ document
         selectedPiece =
             null;
 
+        if (!resolveEndTurnEffects(currentPlayer)) {
+            render();
+            updateShopDisabled();
+            return;
+        }
 
         currentPlayer =
             currentPlayer === 1
@@ -4148,8 +4273,8 @@ function updatePlayerPanels() {
     const rightBase = findBase(2);
     setResourceBar("left-hp-fill", leftBase ? leftBase.hp : 0, 100);
     setResourceBar("right-hp-fill", rightBase ? rightBase.hp : 0, 100);
-    setResourceBar("left-stars-fill", players[1].stars, 200);
-    setResourceBar("right-stars-fill", players[2].stars, 200);
+    setResourceBar("left-stars-fill", players[1].stars, INITIAL_STARS);
+    setResourceBar("right-stars-fill", players[2].stars, INITIAL_STARS);
     setResourceBar("left-rp-fill", players[1].rp, MAX_RP);
     setResourceBar("right-rp-fill", players[2].rp, MAX_RP);
     document.getElementById("left-player-panel").classList.toggle("active", phase === "battle" && currentPlayer === 1);
