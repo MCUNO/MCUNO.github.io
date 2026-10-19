@@ -1023,6 +1023,10 @@ input {
 .piece-hp-fill.low { background: #e5a52e; }
 .piece-hp-fill.critical { background: #df3f3f; }
 
+.damage-number.damage-electric { color: #1976d2; }
+.damage-number.damage-poison { color: #8e24aa; }
+.damage-number.damage-heal { color: #e83e8c; }
+
 .damage-number {
     position: absolute;
     left: 50%;
@@ -1556,7 +1560,7 @@ input {
    花瓣资料
 ========================================================= */
 
-const INITIAL_STARS = 200; // 双方初始 Stars，同时作为 Stars 条上限
+const INITIAL_STARS = 235; // 双方初始 Stars，同时作为 Stars 条上限
 
 const PIECES = [
 
@@ -1565,7 +1569,7 @@ const PIECES = [
 
         name: "刺",
 
-        description: "哎呦我去啥玩意那么疼哦你耐久拉完了",
+        description: "哎呦啥玩意那么疼哦你耐久拉完了行吧不管你了",
 
         image:
         "images/stinger.webp",
@@ -1705,14 +1709,14 @@ const PIECES = [
 
         name: "激光器",
 
-        description: "小而精准的激光，攻击可以无视障碍物。",
+        description: "蟹博士的镭射可以把在掩体后面的烤的外焦里嫩",
 
         image:
         "images/laser.webp",
 
         price: 12,
 
-        damage: 5,
+        damage: 4,
 
         hp: 25,
 
@@ -1730,7 +1734,7 @@ const PIECES = [
 
         name: "电池",
 
-        description: "攻击会将伤害传导至周围敌方花瓣，最远传导 3 格。",
+        description: "垃圾区轰炸者の闲情逸致",
 
         image:
         "images/battery.webp",
@@ -1747,6 +1751,20 @@ const PIECES = [
 
         chainAttack: true
 
+    },
+
+
+    {
+        id: "dice",
+        name: "骰子",
+        description: "每次攻击造成 2×(1～6) 点随机伤害。",
+        image: "images/dice.webp",
+        price: 18,
+        damage: 2,
+        hp: 35,
+        range: 2,
+        rp: 1,
+        randomDiceDamage: true
     },
 
 
@@ -1769,6 +1787,8 @@ const PIECES = [
 
         rp: 0,
 
+        immobile: true,
+        noAttack: true,
         endTurnPoison: true
 
     },
@@ -1793,6 +1813,8 @@ const PIECES = [
 
         rp: 0,
 
+        immobile: true,
+        noAttack: true,
         endTurnHeal: true
 
     },
@@ -2277,7 +2299,7 @@ function showPieceTooltip(
 
         <div class="tooltip-row">
             <span>伤害</span>
-            <span>${piece.damage}</span>
+            <span>${piece.randomDiceDamage ? "2×(1～6) 随机" : piece.damage}</span>
         </div>
 
         <div class="tooltip-row">
@@ -2732,6 +2754,9 @@ function placePiece(
         immobile:
             !!piece.immobile,
 
+        noAttack:
+            !!piece.noAttack,
+
         wall:
             !!piece.wall,
 
@@ -2743,6 +2768,9 @@ function placePiece(
 
         chainAttack:
             !!piece.chainAttack,
+
+        randomDiceDamage:
+            !!piece.randomDiceDamage,
 
         isBase:
             false
@@ -3222,6 +3250,8 @@ function render() {
 
                 if (
                     target &&
+                    !selectedPiece.noAttack &&
+                    selectedPiece.damage > 0 &&
                     target.player !==
                     currentPlayer &&
                     d <=
@@ -3376,6 +3406,7 @@ function updateHoverPreview(
 
     if (
         target &&
+        !selectedPiece.noAttack &&
         target.player !== currentPlayer &&
         d <= selectedPiece.range &&
         (!selectedPiece.lineOnly ||
@@ -3594,8 +3625,9 @@ function handleCellClick(
 
 
         if (
-            d <=
-            selectedPiece.range
+            !selectedPiece.noAttack &&
+            selectedPiece.damage > 0 &&
+            d <= selectedPiece.range
         ) {
 
             if (
@@ -3833,6 +3865,10 @@ function attack(attacker, target) {
     players[currentPlayer].rp -= attacker.rp;
     isAnimating = true;
 
+    const attackDamage = attacker.randomDiceDamage
+        ? 2 * (Math.floor(Math.random() * 6) + 1)
+        : attacker.damage;
+
     const chainTargets = [];
     if (attacker.chainAttack) {
         for (let y = 0; y < BOARD_SIZE; y++) {
@@ -3851,8 +3887,8 @@ function attack(attacker, target) {
         chainTargets.sort((a, b) => distance(target, a.piece) - distance(target, b.piece));
     }
 
-    target.hp = Math.max(0, target.hp - attacker.damage);
-    addLog(`${playerNames[currentPlayer]} 的 ${attacker.name} 攻击 ${target.name}，造成 ${attacker.damage} 点伤害`, currentPlayer);
+    target.hp = Math.max(0, target.hp - attackDamage);
+    addLog(`${playerNames[currentPlayer]} 的 ${attacker.name} 攻击 ${target.name}，造成 ${attackDamage} 点伤害`, currentPlayer);
 
     const primaryHpFill = targetElement.querySelector(".piece-hp-fill");
     if (primaryHpFill) {
@@ -3869,7 +3905,8 @@ function attack(attacker, target) {
 
     const damageNumber = document.createElement("div");
     damageNumber.className = "damage-number";
-    damageNumber.textContent = `-${attacker.damage}`;
+    if (attacker.type === "laser" || attacker.type === "battery") damageNumber.classList.add("damage-electric");
+    damageNumber.textContent = `-${attackDamage}`;
     targetElement.appendChild(damageNumber);
     setTimeout(() => damageNumber.remove(), 760);
     updatePlayerPanels();
@@ -3896,7 +3933,7 @@ function attack(attacker, target) {
                 void element.offsetWidth;
                 element.classList.add("hit-shake", "damage-flash");
                 const num = document.createElement("div");
-                num.className = "damage-number";
+                num.className = "damage-number damage-electric";
                 num.textContent = `-${item.damage}`;
                 element.appendChild(num);
                 setTimeout(() => num.remove(), 760);
@@ -4135,6 +4172,23 @@ function startBattle() {
 }
 
 
+/* 在目标格上显示带颜色的伤害/治疗飘字。 */
+function showEffectNumber(unit, text, kind) {
+    // 回合结束后会立即重新 render 棋盘，因此延迟到下一轮事件循环再挂载飘字。
+    const x = unit.x;
+    const y = unit.y;
+    setTimeout(() => {
+        const cell = boardElement.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+        const element = cell ? cell.querySelector(".piece") : null;
+        if (!element) return;
+        const number = document.createElement("div");
+        number.className = `damage-number ${kind}`;
+        number.textContent = text;
+        element.appendChild(number);
+        setTimeout(() => number.remove(), 760);
+    }, 0);
+}
+
 /* =========================================================
    回合结束自动效果：铀毒伤、龟背竹治疗
 ========================================================= */
@@ -4159,7 +4213,8 @@ function resolveEndTurnEffects(player) {
             if (target.player !== enemy || target.isBase) continue;
             if (distance(uranium, target) <= 3 && !poisoned.has(target.id)) {
                 poisoned.add(target.id);
-                target.hp -= 3;
+                target.hp = Math.max(0, target.hp - 3);
+                showEffectNumber(target, "-3", "damage-poison");
                 addLog(`${playerNames[player]} 的铀对 ${target.name} 造成 3 点毒伤`, player);
             }
         }
@@ -4175,7 +4230,10 @@ function resolveEndTurnEffects(player) {
                 const before = target.hp;
                 target.hp = Math.min(target.maxHp, target.hp + 3);
                 const actual = target.hp - before;
-                if (actual > 0) addLog(`${playerNames[player]} 的龟背竹为 ${target.name} 恢复 ${actual} 点生命`, player);
+                if (actual > 0) {
+                    showEffectNumber(target, `+${actual}`, "damage-heal");
+                    addLog(`${playerNames[player]} 的龟背竹为 ${target.name} 恢复 ${actual} 点生命`, player);
+                }
             }
         }
     }
